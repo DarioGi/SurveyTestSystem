@@ -5,5 +5,5 @@ public interface Selectable
 	void select();
 	boolean addSelection(Selection selection);
 	boolean removeSelection(int selectionID);
-	boolean getSelection(int selectionID);
+	Selectable getSelection(int selectionID);
 }

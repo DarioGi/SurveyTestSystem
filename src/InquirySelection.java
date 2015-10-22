@@ -1,18 +1,26 @@
+import java.util.Vector;
 
 public class InquirySelection extends Selection 
 {
 
-	protected InquirySelection(String selectionName) 
+	protected Inquiries type;
+	protected Vector<Inquiry> inquiries;
+	protected InquirySelection(String selectionName, Inquiries type) 
 	{
 		super(selectionName);
-		// TODO Auto-generated constructor stub
+		this.type = type;
 	}
 
-	@Override
-	public void select() 
-	{
-		createMenu();
-	}
+//	@Override
+//	public void select() 
+//	{
+//		createMenu();
+//	}
+//	
+//	private void createMenu()
+//	{
+//		
+//	}
 
 
 }
