@@ -6,4 +6,5 @@ public interface Selectable
 	boolean addSelection(Selection selection);
 	boolean removeSelection(int selectionID);
 	Selectable getSelection(int selectionID);
+	int getSelectionSize();
 }

@@ -51,6 +51,11 @@ public abstract class Selection implements Selectable, Inputable
 			return selection.get(selectionID);
 	}
 	
+	public int getSelectionSize()
+	{
+		return selection.size();
+	}
+	
 	public String askForInput()
 	{
 		String in = "";
