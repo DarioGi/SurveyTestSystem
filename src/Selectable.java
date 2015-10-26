@@ -2,7 +2,7 @@
 public interface Selectable 
 {
 	//Each selection can hold multiple selections.
-	void select();
+	Object select(Object o); 
 	boolean addSelection(Selection selection);
 	boolean removeSelection(int selectionID);
 	Selectable getSelection(int selectionID);

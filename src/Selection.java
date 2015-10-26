@@ -16,16 +16,19 @@ public abstract class Selection implements Selectable, Inputable
 		input = new Scanner(System.in);
 	}
 	
-	public void select()
+	public Object select(Object o)
 	{
+		if ( selection.isEmpty() )
+			return null; //Simply return if empty
 		while ( true )
 		{
-			int index =  verifyInput(askForInput());
+			int index = verifyInput(askForInput());
 			if ( index != -1 && index != selection.size()+1 )
-				selection.elementAt(index-1).select();
+				selection.elementAt(index-1).select(null);
 			else if ( index == selection.size()+1 )
 				break;
 		}
+		return null;
 	}
 	
 	public boolean addSelection(Selection selection)

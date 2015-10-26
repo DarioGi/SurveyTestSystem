@@ -8,9 +8,16 @@ public class LoadInquirySelection extends Selection
 		super(selectionName);
 	}
 
-	public void select()
+	public Object select(Object o)
 	{
-		parent.setCurrentInquiry(null);
-		// Should load the inquiries from the file, and display the selections
+		String path;
+		if ( o instanceof String )
+			path = (String) o;
+		else
+			return null;
+		
+		
+
+		return null;
 	}
 }

@@ -11,6 +11,6 @@ public class SurveyTestSystem
 		MenuSelection mainMenu = new MenuSelection("Main Menu");
 		mainMenu.addSelection(new InquirySelection("Test", Inquiries.Test));
 		mainMenu.addSelection(new InquirySelection("Survey", Inquiries.Survey));
-		mainMenu.select();
+		mainMenu.select(null);
 	}
 }
