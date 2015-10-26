@@ -1,9 +1,9 @@
 import java.awt.Menu;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 public class InquirySelection extends Selection 
 {
-
 	protected Inquiries type;
 	protected Vector<Inquiry> inquiries;
 	protected CreateNewInquirySelection createInquirySelection;
@@ -17,6 +17,11 @@ public class InquirySelection extends Selection
 	protected final String displayAStr = "Display a ";
 	protected final String loadAStr = "Load a ";
 	protected final String saveAStr = "Save a ";
+	public final static String INQUIRY_TEST = "Test";
+	public final static String INQUIRY_SURVEY = "Survey";
+	public final static String INQUIRY_DEFAULT = "INVALID";
+	public final static String DEFAULT_INQUIRY_PATH = "./Inquiries";
+	public final static String DEFAULT_INQUIRY_EXTENSION = ".inquiry";
 	
 	protected InquirySelection(String selectionName, Inquiries type) 
 	{
@@ -43,10 +48,10 @@ public class InquirySelection extends Selection
 					switch ( type )
 					{
 						case Survey:
-							inquiry = new InquirySurvey("Survey");
+							inquiry = new InquirySurvey(INQUIRY_SURVEY, DEFAULT_INQUIRY_PATH, DEFAULT_INQUIRY_EXTENSION);
 							
 						case Test:
-							inquiry = new InquirySurvey("Test");
+							inquiry = new InquirySurvey(INQUIRY_TEST, DEFAULT_INQUIRY_PATH, DEFAULT_INQUIRY_EXTENSION);
 					}
 					selection.elementAt(index-1).select(inquiry);
 					currentInquiry = inquiry;
@@ -88,7 +93,6 @@ public class InquirySelection extends Selection
 		this.selection.add(saveInquirySelection);
 	}
 	
-	
 	protected boolean setCurrentInquiry(int inquiryIndex)
 	{
 		if ( inquiryIndex > 0 || inquiryIndex < inquiries.size() )
@@ -103,18 +107,43 @@ public class InquirySelection extends Selection
 		}
 	}
 	
-	
 	public static Inquiry loadInquiry(Inquiries type)
 	{
 		Inquiry inquiry = null;
+		String name = getInquiryName(type);
+			
+		return inquiry;
+	}
+	
+	// This assumes the following filename format./PATH/NAME_*.EXTENSION
+	private String[] getInquiryList(String filename)
+	{
+		int tempIndex = filename.lastIndexOf("//");
+		String filenameRaw;
+		String extension;
+		if ( tempIndex < filename.length() )
+			filenameRaw = filename.substring(tempIndex);
+		else
+			filenameRaw = filename;
+		if ( filenameRaw.lastIndexOf(".") < filenameRaw.length() )
+			extension = filenameRaw.substring(tempIndex);
+		else
+			return null;
+		
+		// Get the list of files in the directory, and store matching file paths into a list.
+	}
+	
+	private static String getInquiryName(Inquiries type)
+	{
 		switch ( type )
 		{
 			case Survey:
-				
-			
+				return INQUIRY_SURVEY;
 			case Test:
+				return INQUIRY_TEST;
+			default:
+				return INQUIRY_DEFAULT;
 		}
-		return inquiry;
 	}
 	
 	

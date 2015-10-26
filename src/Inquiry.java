@@ -5,18 +5,18 @@ import java.io.IOException;
 
 public abstract class Inquiry implements Serializable
 {
-	private final String DEFAULT_INQUIRY_EXTENSION = ".inquiry";
-	private final String DEFAULT_INQUIRY_PATH = "./Inquiries";
 	protected String inquiryName;
 	protected String inquiryPath;
+	protected String inquiryExtension;
 	protected boolean isInquirySaved;
 	Vector<Question> questions;
 	MenuSelection createAddQuestionsSelection;
 	
-	public Inquiry(String inquiryName)
+	public Inquiry(String inquiryName, String inquiryPath, String inquiryExtension)
 	{
 		this.inquiryName = inquiryName;
-		this.inquiryPath = DEFAULT_INQUIRY_PATH;
+		this.inquiryPath = inquiryPath;
+		this.inquiryExtension = inquiryExtension;
 		this.isInquirySaved = false;
 		createQuestionMenu();
 	}
@@ -28,7 +28,7 @@ public abstract class Inquiry implements Serializable
 	
 	public String getFilename()
 	{
-		return inquiryPath;
+		return inquiryName;
 	}
 	
 	public String getFilepath()
@@ -72,7 +72,7 @@ public abstract class Inquiry implements Serializable
 			String strPath;
 			while ( true )
 			{
-				strPath = getFilePath(inquiryPath, inquiryName, i, DEFAULT_INQUIRY_EXTENSION);
+				strPath = getFilePath(inquiryPath, inquiryName, i, inquiryExtension);
 				path = Paths.get(strPath);
 				if ( Files.isRegularFile(path) )
 					i++;
