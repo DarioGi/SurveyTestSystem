@@ -34,9 +34,10 @@ public class InquirySelection extends Selection
 		while ( true )
 		{
 			int index = verifyInput(askForInput());
+			
 			if ( index != -1 && index != selection.size()+1 )
 			{
-				if ( selection.elementAt(index) instanceof CreateNewInquirySelection )
+				if ( selection.elementAt(index-1) instanceof CreateNewInquirySelection )
 				{
 					Inquiry inquiry = null;
 					switch ( type )
@@ -47,11 +48,11 @@ public class InquirySelection extends Selection
 						case Test:
 							inquiry = new InquirySurvey("Test");
 					}
-					selection.elementAt(index).select(inquiry);
+					selection.elementAt(index-1).select(inquiry);
 					currentInquiry = inquiry;
 					inquiries.add(inquiry);
 				}
-				else if ( selection.elementAt(index) instanceof LoadInquirySelection )
+				else if ( selection.elementAt(index-1) instanceof LoadInquirySelection )
 				{
 					currentInquiry = loadInquiry(type);
 					addInquiryToVector(currentInquiry);

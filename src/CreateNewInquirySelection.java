@@ -5,7 +5,6 @@ public class CreateNewInquirySelection extends Selection
 	protected CreateNewInquirySelection(String selectionName) 
 	{
 		super(selectionName);
-		
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 
 public class LoadInquirySelection extends Selection 
 {
-	
 	InquirySelection parent;
 	protected LoadInquirySelection(String selectionName, InquirySelection parent) 
 	{
@@ -15,9 +14,6 @@ public class LoadInquirySelection extends Selection
 			path = (String) o;
 		else
 			return null;
-		
-		
-
 		return null;
 	}
 }

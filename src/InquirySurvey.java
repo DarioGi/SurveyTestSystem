@@ -7,11 +7,4 @@ public class InquirySurvey extends Inquiry
 		super(inquiryName);
 		
 	}
-
-	
-	public void createQuestions()
-	{
-		
-	}
-
 }

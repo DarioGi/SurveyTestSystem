@@ -9,5 +9,4 @@ public interface Inquirable
 	String getFilename();
 	String getFilepath();
 	void displayInquiry();
-	
 }
