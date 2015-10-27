@@ -5,26 +5,30 @@ public abstract class Selection implements Selectable, Inputable
 {
 	protected Vector<Selection> selection;
 	protected String selectionName;
-	protected Scanner input;
+	protected static Scanner input = new Scanner(System.in);
 	protected String inputQuestion = "Enter a selection: ";
 	protected String invalidInputMsg = "Invalid input, try again...";
+	protected OutputMenu out;
 	
 	protected Selection(String selectionName)
 	{
 		this.selectionName = selectionName;
 		selection = new Vector<Selection>();
-		input = new Scanner(System.in);
+		out = new OutputMenu();
 	}
 	
 	public Object select(Object o)
 	{
 		if ( selection.isEmpty() )
 			return null; //Simply return if empty
+		Object arg = null;
+		if ( o != null )
+			arg = o;
 		while ( true )
 		{
 			int index = verifyInput(askForInput());
 			if ( index != -1 && index != selection.size()+1 )
-				selection.elementAt(index-1).select(null);
+				selection.elementAt(index-1).select(arg);
 			else if ( index == selection.size()+1 )
 				break;
 		}
@@ -45,6 +49,13 @@ public abstract class Selection implements Selectable, Inputable
 			selection.removeElementAt(selectionID);
 		return true;
 	}
+	
+	
+	public void removeAllSelections()
+	{
+		selection.clear();
+	}
+	
 	
 	public Selectable getSelection(int selectionID)
 	{
@@ -67,13 +78,13 @@ public abstract class Selection implements Selectable, Inputable
 			try
 			{
 				printPrompt();
-				System.out.print(inputQuestion);
+				out.output(inputQuestion);
 				in = input.nextLine();
 				break;
 			}
 			catch(Exception e)
 			{
-				System.out.println(invalidInputMsg);
+				out.output(invalidInputMsg);
 			}
 		}
 		return in;
@@ -107,10 +118,10 @@ public abstract class Selection implements Selectable, Inputable
 	{
 		for ( int i = 0; i < selection.size(); i++ )
 		{
-			System.out.printf("%d. %s\n", i+1, selection.elementAt(i).selectionName);
+			out.output(String.format("%d. %s", i+1, selection.elementAt(i).selectionName));
 		}
 		if ( selection.size() == 0 )
-			System.out.println("Nothing to see here..");
-		System.out.printf("%d. Exit\n", selection.size()+1);
+			out.output("Nothing found.");
+		out.output(String.format("%d. Exit", selection.size()+1));
 	}
 }

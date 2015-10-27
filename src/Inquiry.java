@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.nio.file.*;
+import java.util.Iterator;
 import java.util.Vector;
 import java.io.IOException;
 
@@ -9,21 +10,93 @@ public abstract class Inquiry implements Serializable
 	protected String inquiryPath;
 	protected String inquiryExtension;
 	protected boolean isInquirySaved;
-	Vector<Question> questions;
-	MenuSelection createAddQuestionsSelection;
+	protected boolean areQuestionsGradeable;
+	protected int inquiryIndex;
+	private Vector<Question> questions;
+	transient ChoiceInquirySelection questionAskSelection;
+	transient private Vector<SelectionChoice> questionMenuSelections;
 	
-	public Inquiry(String inquiryName, String inquiryPath, String inquiryExtension)
+	public Inquiry(String inquiryName, String inquiryPath, int inquiryIndex, String inquiryExtension, boolean isSaved, boolean areQUestionsGradeable)
 	{
+		// Use this when creating a brand new one.
 		this.inquiryName = inquiryName;
 		this.inquiryPath = inquiryPath;
 		this.inquiryExtension = inquiryExtension;
-		this.isInquirySaved = false;
-		createQuestionMenu();
+		this.isInquirySaved = isSaved;
+		this.inquiryIndex = inquiryIndex;
+		this.areQuestionsGradeable = areQuestionsGradeable;
+		questions = new Vector<Question>();
 	}
+	
+	public Inquiry(String inquiryName, String inquiryPath, int inquiryIndex, String inquiryExtension, boolean isSaved)
+	{
+		this(inquiryName, inquiryPath, inquiryIndex, inquiryExtension, isSaved, false);
+	}
+	
 	
 	void createQuestions()
 	{
-		createAddQuestionsSelection.select(null);
+		
+		while ( true )
+		{
+			createQuestionMenu();
+			int choice = -1;
+			questionAskSelection.select(null);
+			Iterator<SelectionChoice> itSC = questionMenuSelections.iterator();	
+			int count = 1;
+			while ( itSC.hasNext() )
+			{
+				choice = itSC.next().getSelectionChoice() ;
+				if ( choice != -1 )
+					break;
+				else
+					count++;
+			}
+			if ( choice <= 0 )
+				break;
+			
+			// Not very elegant, but will do in this case...
+			// This would be need to be changed if the questions were added in different order, etc.
+			Question q;
+			if ( count == 1 )
+			{
+				q = new QuestionTF("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else if ( count == 2)
+			{
+				q = new QuestionMC("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else if ( count == 3)
+			{
+				q = new QuestionSA("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else if ( count == 4)
+			{
+				q = new QuestionEA("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else if ( count == 5)
+			{
+				q = new QuestionRC("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else if ( count == 6)
+			{
+				q = new QuestionM("", this.areQuestionsGradeable);
+				q.createQuestion();
+				questions.addElement(q);
+			}
+			else
+				break;
+		}
 	}
 	
 	public String getFilename()
@@ -40,62 +113,44 @@ public abstract class Inquiry implements Serializable
 	{
 		try 
 		{
-			String filename;
+			SerializationUtil.serialize(this, getFilePath(inquiryPath, inquiryName, inquiryIndex, inquiryExtension)+".");
 			if ( !isInquirySaved )
-				filename = getNewInquiryName();
-			else
-				filename = inquiryPath;
-			if ( filename.compareToIgnoreCase("") == 0 )
-				return false;
-			SerializationUtil.serialize(this, filename);
-			if ( !isInquirySaved )
-			{
 				isInquirySaved = true;
-				this.inquiryPath = filename;
-			}
 			return true;
 		} 
 		catch (IOException e) 
 		{
-			e.printStackTrace();
+			System.out.printf("Error: %s\n", e.getMessage());
 			return false;
 		}
 	}
 	
-	private String getNewInquiryName()
-	{
-		Path path = Paths.get(inquiryPath);
 	
-		if ( Files.isDirectory(path) ) 
-		{
-			int i = 0;
-			String strPath;
-			while ( true )
-			{
-				strPath = getFilePath(inquiryPath, inquiryName, i, inquiryExtension);
-				path = Paths.get(strPath);
-				if ( Files.isRegularFile(path) )
-					i++;
-				else
-					return strPath;
-			}
-		} 
-		else
-			return "";
+	public static String getFilePath(String path, String filename, int index, String extension)
+	{
+		return path + "/" + filename + "_" + Integer.toString(index) + extension;
 	}
 	
-	private String getFilePath(String path, String filename, int index, String extension)
-	{
-		return path + "//" + filename + "_" + Integer.toString(index) + extension;
-	}
 	
 	private void createQuestionMenu()
 	{
-		createAddQuestionsSelection = new MenuSelection("Create new.");
-		Question q1 = new Question("Specify a T/F question");
-		Question q2 = new Question("Specify a multiple choice question");
-		createAddQuestionsSelection.addSelection(new addQuestionSelection("Add a new T/F question", q1));
-		createAddQuestionsSelection.addSelection(new addQuestionSelection("Add a new multiple choice question", q2));
+		questionMenuSelections = new Vector<SelectionChoice>();
+		questionAskSelection = new ChoiceInquirySelection("None");
+		
+		addQuestionToMenu("Add a new T/F question");
+		addQuestionToMenu("Add a new multiple choice question");
+		addQuestionToMenu("Add a new short answer question");
+		addQuestionToMenu("Add a new essay question");
+		addQuestionToMenu("Add a new ranking question");
+		addQuestionToMenu("Add a new multiple choice question");
+	}
+	
+	
+	private void addQuestionToMenu(String name)
+	{
+		SelectionChoice tempSC = new SelectionChoice();
+		questionMenuSelections.add(tempSC);
+		questionAskSelection.addSelection(new ChoiceSelection(name, tempSC));
 	}
 }
 	

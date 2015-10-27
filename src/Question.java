@@ -1,14 +1,21 @@
+import java.io.Serializable;
 
-public class Question 
+public class Question implements Serializable
 {
 	private String question;
-	Question(String question)
+	private String questionType;
+	Question(String question, boolean isGradeable)
 	{
 		this.question = question;
 	}
 	
 	public void askQuestion()
 	{
-		System.out.println(question);
+		
+	}
+	
+	public void createQuestion()
+	{
+		
 	}
 }

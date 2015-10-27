@@ -1,5 +1,5 @@
 
-public interface Outputable 
+public interface Outputable
 {
 	void output(String arg);
 }
