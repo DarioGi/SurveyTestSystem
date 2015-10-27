@@ -173,6 +173,16 @@ public class InquirySelection extends Selection
 			{
 				out.output(String.format("Error: Unable to load %s file.", Inquiry.getFilePath(DEFAULT_INQUIRY_PATH, getInquiryName(type), selectionIndex, DEFAULT_INQUIRY_EXTENSION)));
 			}
+			catch (ClassCastException ca)
+			{
+				out.output(String.format("Error: Unable to load %s file.",
+						Inquiry.getFilePath(DEFAULT_INQUIRY_PATH, getInquiryName(type), selectionIndex, DEFAULT_INQUIRY_EXTENSION), 
+						"Did you rename this to another type?"));
+			}
+			catch (Exception e)
+			{
+				out.output(String.format("Unexpected Error: Unable to load %s file.", Inquiry.getFilePath(DEFAULT_INQUIRY_PATH, getInquiryName(type), selectionIndex, DEFAULT_INQUIRY_EXTENSION)));
+			}
 		}
 		else
 		{
