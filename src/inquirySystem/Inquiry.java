@@ -115,7 +115,7 @@ public abstract class Inquiry implements Serializable
 	{
 		try 
 		{
-			SerializationUtil.serialize(this, getFilePath(inquiryPath, inquiryName, inquiryIndex, inquiryExtension)+".");
+			SerializationUtil.serialize(this, getFilePath(inquiryPath, inquiryName, inquiryIndex, inquiryExtension));
 			if ( !isInquirySaved )
 				isInquirySaved = true;
 			return true;

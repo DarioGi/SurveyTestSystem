@@ -25,7 +25,7 @@ public class QuestionRC extends Question implements Serializable
 		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
 		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
 		{
-			outStr += String.format("%s) %s ", alphabet++, res.get(0).get(i));
+			outStr += String.format("%s) %-20s ", alphabet++, res.get(0).get(i));
 			if ( isGradeable )
 			{
 				outStr += String.format(" Rank: %s",res.get(1).get(i));

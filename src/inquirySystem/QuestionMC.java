@@ -26,7 +26,7 @@ public class QuestionMC extends Question implements Serializable
 		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
 		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
 		{
-			outStr += String.format("%s) %s ", alphabet++, res.get(0).get(i));
+			outStr += String.format("%s) %-20s ", alphabet++, res.get(0).get(i));
 			if ( isGradeable )
 			{
 				outStr += String.format(" Is correct: %s",res.get(1).get(i));
@@ -45,7 +45,7 @@ public class QuestionMC extends Question implements Serializable
 		int numToInput = 0;
 		for ( int i = 0; i < numOfAnswers; i++ )
 		{
-			String str= askForString(String.format("%d of %d) Enter  choice:", i+1, numOfAnswers));
+			String str= askForString(String.format("%d of %d) Enter choice:", i+1, numOfAnswers));
 			if ( super.isGradeable )
 			{
 				String in = askForYN("Is this choice a correct answer? (Y/N):");

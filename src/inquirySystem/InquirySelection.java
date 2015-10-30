@@ -71,8 +71,8 @@ public class InquirySelection extends Selection
 					Inquiry temp = loadInquiry();
 					if ( temp != null )
 					{
-						addInquiryToVector(currentInquiry);
 						currentInquiry = temp;
+						addInquiryToVector(currentInquiry);
 						createMenu();
 					}
 					continue;
