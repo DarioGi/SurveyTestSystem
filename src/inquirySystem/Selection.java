@@ -9,6 +9,7 @@ public abstract class Selection implements Selectable
 	protected String invalidInputMsg = "Invalid input, try again...";
 	protected OutputMenu out;
 	protected Input input;
+	protected String exitString = "Go Back";
 	
 	protected Selection(String selectionName)
 	{
@@ -123,6 +124,6 @@ public abstract class Selection implements Selectable
 		}
 		if ( selection.size() == 0 )
 			out.output("Nothing found.");
-		out.output(String.format("%d. Exit", selection.size()+1));
+		out.output(String.format("%d. %s\n", selection.size()+1, exitString));
 	}
 }

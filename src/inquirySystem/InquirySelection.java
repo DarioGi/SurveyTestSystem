@@ -14,6 +14,7 @@ public class InquirySelection extends Selection
 	protected DisplayInquirySelection displayInquirySelection;
 	protected ChoiceInquirySelection loadInquirySelection;
 	protected SaveInquirySelection saveInquirySelection;
+	protected ModifyInquirySelection modifyInquirySelection;
 	
 	protected int currentInquiryIndex;
 	protected Inquiry currentInquiry;
@@ -21,6 +22,7 @@ public class InquirySelection extends Selection
 	protected final String displayAStr = "Display a ";
 	protected final String loadAStr = "Load a ";
 	protected final String saveAStr = "Save a ";
+	protected final String modifyAStr = "Modify a ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
@@ -100,6 +102,17 @@ public class InquirySelection extends Selection
 						continue;
 					}
 				}
+				else if ( selection.elementAt(index -1) instanceof ModifyInquirySelection )
+				{
+					Inquiry temp = loadInquiry();
+					if ( temp != null )
+					{
+						currentInquiry = temp;
+						addInquiryToVector(currentInquiry);
+						currentInquiry.modifyInquiry();
+					}
+					continue;
+				}
 			}
 			else if ( index == selection.size()+1 )
 				break;
@@ -130,6 +143,10 @@ public class InquirySelection extends Selection
 		// Save
 		saveInquirySelection = new SaveInquirySelection(getSelectionString(saveAStr, true));
 		this.selection.add(saveInquirySelection);
+		
+		// Modify
+		modifyInquirySelection = new ModifyInquirySelection(getSelectionString(modifyAStr, false));
+		this.selection.add(modifyInquirySelection);
 	}
 	
 	protected boolean setCurrentInquiry(int inquiryIndex)

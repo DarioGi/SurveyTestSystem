@@ -127,6 +127,10 @@ public abstract class Inquiry implements Serializable
 		}
 	}
 	
+	public void modifyInquiry()
+	{
+		
+	}
 	
 	public static String getFilePath(String path, String filename, int index, String extension)
 	{
