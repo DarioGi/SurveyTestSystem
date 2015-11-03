@@ -35,11 +35,22 @@ public class QuestionTF extends Question implements Serializable
 		if ( isGradeable )
 			askForTrueFalseInput();
 	}
-
-	@Override
-	public void modifyQuestion() 
+	
+	public void modifyQuestion()
 	{
-		
+		printToMenu(String.format("Current prompt: %s", question));
+		if ( askForYN("Do you wish to modify the prompt (Y/N)?") )
+		{
+			enterPrompt();
+		}
+		if ( isGradeable )
+		{
+			if ( askForYN("Do you wish to modify the answer (Y/N)?") )
+			{
+				questionAnswer.removeAllResults();
+				askForTrueFalseInput();
+			}
+		}
 	}
 
 	@Override

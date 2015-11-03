@@ -33,9 +33,19 @@ public class QuestionEA extends Question implements Serializable
 	}
 
 	@Override
-	public void modifyQuestion() {
-		// TODO Auto-generated method stub
-		
+	public void modifyQuestion() 
+	{
+		printToMenu(getQuestion());
+		if ( askForYN("Do you wish to modify the prompt (Y/N)?") )
+		{
+			enterPrompt();
+			printToMenu(getQuestion());
+		}
+		if ( askForYN("Do you wish to modify number of answers (Y/N)?") )
+		{
+			numOfAnswers = super.askForNumber("Enter number of answers:", 1, MAX_EA_ANSWERS);
+			printToMenu(getQuestion());
+		}
 	}
 
 	@Override

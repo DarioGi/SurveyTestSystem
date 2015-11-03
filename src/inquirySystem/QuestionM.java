@@ -20,13 +20,7 @@ public class QuestionM extends Question implements Serializable
 	public String getQuestion() 
 	{
 		String outStr = super.question + "\n" 
-				+ type + "\n";
-		char alphabet = 'A';
-		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
-		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
-		{
-			outStr += String.format("%s) %-25s  %d) %-25s\n", alphabet++, res.get(0).get(i), i+1, res.get(1).get(i));
-		}
+				+ type + "\n" + getAnswerChoices();
 		return outStr;
 	}
 
@@ -46,7 +40,33 @@ public class QuestionM extends Question implements Serializable
 	@Override
 	public void modifyQuestion() 
 	{
-		
+		printToMenu(getQuestion());
+		if ( askForYN("Do you wish to modify the prompt (Y/N)?") )
+		{
+			enterPrompt();
+			printToMenu(getQuestion());
+		}
+		while ( askForYN("Do you wish to modify the choices (Y/N)?") )
+		{
+			int choice = super.askForCharNum(String.format("Which choice would you like to modify?\n%s", getAnswerChoices()), super.getAlphabetVector(super.questionAnswer.getNumResults()));
+			String ans1 = super.askForString("Enter first pair choice:");
+			String ans2 = super.askForString("Enter second pair choice:");
+			super.questionAnswer.changeResult(choice, ans1, ans2);
+			printToMenu(getQuestion());
+		}
+	}
+	
+	
+	private String getAnswerChoices()
+	{
+		char alphabet = 'A';
+		String outStr = "";
+		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
+		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
+		{
+			outStr += String.format("%s) %-25s  %d) %-25s\n", alphabet++, res.get(0).get(i), i+1, res.get(1).get(i));
+		}
+		return outStr;
 	}
 
 	@Override

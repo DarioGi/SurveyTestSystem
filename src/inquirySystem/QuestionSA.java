@@ -18,14 +18,8 @@ public class QuestionSA extends Question implements Serializable
 	public String getQuestion() {
 		String outStr = super.question + "\n" 
 				+ type + "\n"
-				+ "Number of answers: " + String.valueOf(numOfAnswers) + "\n";
-		if ( isGradeable )
-		{
-			for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
-			{
-				outStr += String.format("%d): %s\n", i, super.questionAnswer.getResult().get(0).get(i));
-			}
-		}
+				+ "Number of answers: " + String.valueOf(numOfAnswers) + "\n"
+				+ getAnswerChoices();
 			
 		return outStr;
 	}
@@ -46,12 +40,43 @@ public class QuestionSA extends Question implements Serializable
 	}
 
 	@Override
-	public void modifyQuestion() {
-		// TODO Auto-generated method stub
+	public void modifyQuestion() 
+	{
+		printToMenu(getQuestion());
+		if ( askForYN("Do you wish to modify the prompt (Y/N)?") )
+		{
+			enterPrompt();
+			printToMenu(getQuestion());
+		}
+
+		if ( isGradeable )
+		{
+			while ( askForYN("Do you wish to modify the choices (Y/N)?") )
+			{
+				int choice = super.askForNumber("Which answer would you like to change?", 0, super.questionAnswer.getNumResults()-1);
+				String newVal = super.askForString("Enter new value:");
+				super.questionAnswer.changeResult(choice, newVal, "");
+				printToMenu(getQuestion());
+			}
+		}
+	}
+	
+	private String getAnswerChoices()
+	{
+		String outStr = "";
+		if ( isGradeable )
+		{
+			for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
+			{
+				outStr += String.format("%d) %s\n", i, super.questionAnswer.getResult().get(0).get(i));
+			}
+		}
+		return outStr;
 	}
 
 	@Override
-	public void askQuestion() {
+	public void askQuestion() 
+	{
 		// TODO Auto-generated method stub
 		
 	}

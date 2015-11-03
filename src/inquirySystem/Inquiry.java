@@ -15,7 +15,9 @@ public abstract class Inquiry implements Serializable
 	protected int inquiryIndex;
 	private Vector<Question> questions;
 	transient ChoiceInquirySelection questionAskSelection;
+	transient ChoiceInquirySelection questionModifyAskSelection;
 	transient private Vector<SelectionChoice> questionMenuSelections;
+	transient private Vector<SelectionChoice> questionModifyMenuSelections;
 	transient protected OutputInquiry outInquiry;
 	transient protected OutputMenu outMenu;
 	
@@ -38,7 +40,6 @@ public abstract class Inquiry implements Serializable
 	
 	void createQuestions()
 	{
-		
 		while ( true )
 		{
 			createQuestionMenu();
@@ -129,7 +130,36 @@ public abstract class Inquiry implements Serializable
 	
 	public void modifyInquiry()
 	{
-		
+		while (true)
+		{
+			createModifyInquiry();
+			int choice = -1;
+			questionModifyAskSelection.select(null);
+			Iterator<SelectionChoice> itSC = questionModifyMenuSelections.iterator();	
+			int count = 1;
+			while ( itSC.hasNext() )
+			{
+				choice = itSC.next().getSelectionChoice() ;
+				if ( choice != -1 )
+					break;
+				else
+					count++;
+			}
+			if ( choice <= 0 )
+				break;
+			questions.elementAt(count-1).modifyQuestion();
+		}
+	}
+	
+	public void createModifyInquiry()
+	{
+		questionModifyMenuSelections = new Vector<SelectionChoice>();
+		questionModifyAskSelection = new ChoiceInquirySelection("None");
+		Iterator<Question> it = questions.iterator();
+		while ( it.hasNext() )
+		{
+			addQuestionToMenu(String.format("%s", it.next().questionType), questionModifyMenuSelections, questionModifyAskSelection);
+		}
 	}
 	
 	public static String getFilePath(String path, String filename, int index, String extension)
@@ -143,20 +173,20 @@ public abstract class Inquiry implements Serializable
 		questionMenuSelections = new Vector<SelectionChoice>();
 		questionAskSelection = new ChoiceInquirySelection("None");
 		
-		addQuestionToMenu("Add a new T/F question");
-		addQuestionToMenu("Add a new multiple choice question");
-		addQuestionToMenu("Add a new short answer question");
-		addQuestionToMenu("Add a new essay question");
-		addQuestionToMenu("Add a new ranking question");
-		addQuestionToMenu("Add a new matching question");
+		addQuestionToMenu("Add a new T/F question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new multiple choice question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new short answer question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new essay question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new ranking question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new matching question", questionMenuSelections, questionAskSelection);
 	}
 	
 	
-	private void addQuestionToMenu(String name)
+	private void addQuestionToMenu(String name, Vector<SelectionChoice> selVector, ChoiceInquirySelection choiceInquirySel)
 	{
 		SelectionChoice tempSC = new SelectionChoice();
-		questionMenuSelections.add(tempSC);
-		questionAskSelection.addSelection(new ChoiceSelection(name, tempSC));
+		selVector.add(tempSC);
+		choiceInquirySel.addSelection(new ChoiceSelection(name, tempSC));
 	}
 	
 	protected void displayInquiry()

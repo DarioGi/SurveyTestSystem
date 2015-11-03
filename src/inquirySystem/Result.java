@@ -64,10 +64,9 @@ public class Result implements Resultable, Serializable
 	}
 
 	@Override
-	public void removeAllResults(int index) 
+	public void removeAllResults() 
 	{
-		result.get(0).clear();
-		result.get(1).clear();
+		result.clear();
 		numResults = 0;
 	}
 
@@ -76,5 +75,15 @@ public class Result implements Resultable, Serializable
 	{
 		return numResults;
 	}
-
+	
+	@Override
+	public boolean changeResult(int resIndex, String r1, String r2)
+	{
+		if ( resIndex >= numResults )
+			return false;
+		
+		result.get(0).set(resIndex, r1);
+		result.get(1).set(resIndex, r2);
+		return true;
+	}
 }

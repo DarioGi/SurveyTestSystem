@@ -1,5 +1,7 @@
 package inquirySystem;
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public abstract class Question implements Questionable, Serializable
@@ -123,17 +125,68 @@ public abstract class Question implements Questionable, Serializable
 		return in;
 	}
 	
-	protected String askForYN(String prompt)
+	protected String askForCharStr(String prompt, Vector<String> acceptableStrings)
+	{
+		String choice;
+		Iterator<String> it = acceptableStrings.iterator();
+		boolean choiceFound = false;
+		while ( true )
+		{
+			printToMenu(prompt);
+			it = acceptableStrings.iterator();
+			choice = getInput();
+			while ( it.hasNext() )
+			{
+				if ( choice.compareToIgnoreCase(it.next()) == 0 )
+					choiceFound = true;
+			}
+			if ( choiceFound )
+			{
+				return choice.toUpperCase();
+			}
+			else
+			{
+				printToMenu(String.format("Invalid input. Acceptable answers: %s", acceptableStrings.toString()));
+			}
+		}
+	}
+	// -1 error, 1-26 A-Z
+	protected int askForCharNum(String prompt, Vector<String> acceptableStrings)
+	{
+		String out = askForCharStr(prompt, acceptableStrings);
+		if ( out.length() == 1 )
+			return Character.getNumericValue(out.charAt(0)) - Character.getNumericValue('A');
+		else
+			return -1;
+	}
+	
+	protected boolean askForYN(String prompt)
 	{
 		String in = "";
 		while ( true )
 		{
 			printToMenu(prompt);
 			in = getInput();
-			if ( in.compareToIgnoreCase("y") == 0 ||
-					in.compareToIgnoreCase("n") == 0 )
-				break;
+			if ( in.compareToIgnoreCase("y") == 0 )
+				return true;
+			else if ( in.compareToIgnoreCase("n") == 0)
+				return false;
 		}
-		return in;
 	}
+	
+	
+	protected Vector<String> getAlphabetVector(int numOfChars)
+	{
+		if ( numOfChars < 1 || numOfChars > 26 )
+			return null;
+		Vector<String> vS = new Vector<String>();
+		char elem = 'A';
+		for ( int i = 0; i < numOfChars; i++ )
+		{
+			vS.addElement(String.valueOf(elem));
+			elem++;
+		}
+		return vS;
+	}
+	
 }

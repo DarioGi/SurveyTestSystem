@@ -20,19 +20,7 @@ public class QuestionRC extends Question implements Serializable
 	public String getQuestion() 
 	{
 		String outStr = super.question + "\n" 
-				+ type + "\n";
-		char alphabet = 'A';
-		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
-		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
-		{
-			outStr += String.format("%s) %-20s ", alphabet++, res.get(0).get(i));
-			if ( isGradeable )
-			{
-				outStr += String.format(" Rank: %s",res.get(1).get(i));
-			}
-			if ( i != super.questionAnswer.getNumResults()-1 )
-				outStr += "\n";
-		}
+				+ type + "\n" + getAnswerChoices();
 		return outStr;
 	}
 
@@ -65,9 +53,39 @@ public class QuestionRC extends Question implements Serializable
 	}
 
 	@Override
-	public void modifyQuestion() {
-		// TODO Auto-generated method stub
-		
+	public void modifyQuestion() 
+	{
+		printToMenu(getQuestion());
+		if ( askForYN("Do you wish to modify the prompt (Y/N)?") )
+		{
+			enterPrompt();
+			printToMenu(getQuestion());
+		}
+		while ( askForYN("Do you wish to modify the choices (Y/N)?") )
+		{
+			int choice = super.askForCharNum(String.format("Which choice would you like to modify?\n%s", getAnswerChoices()), super.getAlphabetVector(super.questionAnswer.getNumResults()));
+			String newVal = super.askForString("Enter new value:");
+			super.questionAnswer.changeResult(choice, newVal, questionAnswer.getResult().get(1).get(choice));
+			printToMenu(getQuestion());
+		}
+	}
+	
+	private String getAnswerChoices()
+	{
+		String outStr = "";
+		char alphabet = 'A';
+		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
+		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
+		{
+			outStr += String.format("%s) %-20s ", alphabet++, res.get(0).get(i));
+			if ( isGradeable )
+			{
+				outStr += String.format(" Rank: %s",res.get(1).get(i));
+			}
+			if ( i != super.questionAnswer.getNumResults()-1 )
+				outStr += "\n";
+		}
+		return outStr;
 	}
 
 	@Override

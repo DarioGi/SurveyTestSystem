@@ -22,7 +22,7 @@ public class InquirySelection extends Selection
 	protected final String displayAStr = "Display a ";
 	protected final String loadAStr = "Load a ";
 	protected final String saveAStr = "Save a ";
-	protected final String modifyAStr = "Modify a ";
+	protected final String modifyAStr = "Modify an Existing ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
@@ -110,6 +110,7 @@ public class InquirySelection extends Selection
 						currentInquiry = temp;
 						addInquiryToVector(currentInquiry);
 						currentInquiry.modifyInquiry();
+						createMenu();
 					}
 					continue;
 				}
