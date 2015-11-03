@@ -102,8 +102,8 @@ public class QuestionMC extends Question implements Serializable
 	}
 
 	@Override
-	public void askQuestion() {
-		// TODO Auto-generated method stub
-		
+	public Result askQuestion() 
+	{
+		return null;	
 	}
 }

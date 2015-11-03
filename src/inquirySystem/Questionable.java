@@ -10,6 +10,6 @@ public interface Questionable
 	
 	void createQuestion(); // Used when a question is being created.
 	void modifyQuestion(); // Used when a question is being modified.
-	void askQuestion();    // Used when a question is being displayed to the user.
+	Result askQuestion();    // Used when a question is being displayed to the user.
 	
 }

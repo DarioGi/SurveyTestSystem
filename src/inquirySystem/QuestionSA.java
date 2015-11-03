@@ -75,9 +75,8 @@ public class QuestionSA extends Question implements Serializable
 	}
 
 	@Override
-	public void askQuestion() 
+	public Result askQuestion() 
 	{
-		// TODO Auto-generated method stub
-		
+		return null;	
 	}
 }

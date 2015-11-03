@@ -20,6 +20,8 @@ public abstract class Inquiry implements Serializable
 	transient private Vector<SelectionChoice> questionModifyMenuSelections;
 	transient protected OutputInquiry outInquiry;
 	transient protected OutputMenu outMenu;
+	transient protected Vector<Result> currentInquiryResults;
+	transient protected InquiryResult currentInquiryResult;
 	
 	public Inquiry(String inquiryName, String inquiryPath, int inquiryIndex, String inquiryExtension, boolean isSaved, boolean areQuestionsGradeable)
 	{
@@ -30,6 +32,7 @@ public abstract class Inquiry implements Serializable
 		this.isInquirySaved = isSaved;
 		this.inquiryIndex = inquiryIndex;
 		this.areQuestionsGradeable = areQuestionsGradeable;
+		currentInquiryResult = null;
 		questions = new Vector<Question>();
 	}
 	
@@ -128,6 +131,28 @@ public abstract class Inquiry implements Serializable
 		}
 	}
 	
+	public void takeInquiry()
+	{
+		if (questions.isEmpty() )
+		{
+			printToInquiry("There are no questions!");
+			return;
+		}
+		currentInquiryResults = new Vector<Result>();
+		Iterator<Question> it = questions.iterator();
+		while ( it.hasNext() )
+		{
+			currentInquiryResults.addElement(it.next().askQuestion());
+		}
+		currentInquiryResult = new InquiryResult(this.inquiryPath + InquiryResult.DEFAULT_RESULT_PATH,
+				this.inquiryName + "_" + String.valueOf(this.inquiryIndex),
+				InquirySelection.getFirstAvailableInquiryIndex(getFullSearchResultFilePath()),
+				InquiryResult.DEFAULT_RESULT_EXTENSION);
+		if ( currentInquiryResults != null)
+			currentInquiryResult.setResults(currentInquiryResults);
+		currentInquiryResult.saveResult();
+	}
+	
 	public void modifyInquiry()
 	{
 		while (true)
@@ -214,6 +239,11 @@ public abstract class Inquiry implements Serializable
 	public int getInquiryIndex()
 	{
 		return this.inquiryIndex;
+	}
+	
+	public String getFullSearchResultFilePath()
+	{
+		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + this.inquiryName + "_" + this.inquiryIndex + "_" + InquiryResult.DEFAULT_RESULT_PATH;
 	}
 }
 	

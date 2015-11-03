@@ -54,8 +54,8 @@ public class QuestionTF extends Question implements Serializable
 	}
 
 	@Override
-	public void askQuestion() 
+	public Result askQuestion() 
 	{
-		
+		return null;	
 	}
 }

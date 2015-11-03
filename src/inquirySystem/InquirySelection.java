@@ -15,6 +15,7 @@ public class InquirySelection extends Selection
 	protected ChoiceInquirySelection loadInquirySelection;
 	protected SaveInquirySelection saveInquirySelection;
 	protected ModifyInquirySelection modifyInquirySelection;
+	protected TakeInquirySelection takeInquirySelection;
 	
 	protected int currentInquiryIndex;
 	protected Inquiry currentInquiry;
@@ -23,6 +24,7 @@ public class InquirySelection extends Selection
 	protected final String loadAStr = "Load a ";
 	protected final String saveAStr = "Save a ";
 	protected final String modifyAStr = "Modify an Existing ";
+	protected final String takeAStr = "Take a ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
@@ -57,10 +59,10 @@ public class InquirySelection extends Selection
 					switch ( type )
 					{
 						case Survey:
-							inquiry = new InquirySurvey(INQUIRY_SURVEY, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(), DEFAULT_INQUIRY_EXTENSION, false);
+							inquiry = new InquirySurvey(INQUIRY_SURVEY, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(getFullSearchFilePath()), DEFAULT_INQUIRY_EXTENSION, false);
 							break;
 						case Test:
-							inquiry = new InquiryTest(INQUIRY_TEST, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(), DEFAULT_INQUIRY_EXTENSION, false);
+							inquiry = new InquiryTest(INQUIRY_TEST, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(getFullSearchFilePath()), DEFAULT_INQUIRY_EXTENSION, false);
 					}
 					selection.elementAt(index-1).select(inquiry);
 					currentInquiry = inquiry;
@@ -114,6 +116,18 @@ public class InquirySelection extends Selection
 					}
 					continue;
 				}
+				else if ( selection.elementAt(index -1) instanceof TakeInquirySelection )
+				{
+					Inquiry temp = loadInquiry();
+					if ( temp != null )
+					{
+						currentInquiry = temp;
+						addInquiryToVector(currentInquiry);
+						currentInquiry.takeInquiry();
+						createMenu();
+					}
+					continue;
+				}
 			}
 			else if ( index == selection.size()+1 )
 				break;
@@ -148,6 +162,10 @@ public class InquirySelection extends Selection
 		// Modify
 		modifyInquirySelection = new ModifyInquirySelection(getSelectionString(modifyAStr, false));
 		this.selection.add(modifyInquirySelection);
+		
+		// Take
+		takeInquirySelection = new TakeInquirySelection(getSelectionString(takeAStr, false));
+		this.selection.add(takeInquirySelection);
 	}
 	
 	protected boolean setCurrentInquiry(int inquiryIndex)
@@ -234,9 +252,11 @@ public class InquirySelection extends Selection
 	}
 	
 	
-	private int getFirstAvailableInquiryIndex()
+	public static int getFirstAvailableInquiryIndex(String searchPath)
 	{
-		List<Integer> availableInquiries = getInquiryList(getFullSearchFilePath());
+		List<Integer> availableInquiries = getInquiryList(searchPath);
+		if ( availableInquiries == null )
+			return 0;
 		Collections.sort(availableInquiries);
 		int available = 0;
 		Iterator<Integer> it = availableInquiries.iterator();
@@ -251,7 +271,7 @@ public class InquirySelection extends Selection
 	}
 	
 	// This assumes the following filename format-> /PATH/NAME_*.EXTENSION
-	private Vector<Integer> getInquiryList(String filename)
+	public static Vector<Integer> getInquiryList(String filename)
 	{
 		String filenameRaw;
 		String path;
