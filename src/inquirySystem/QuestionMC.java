@@ -1,6 +1,9 @@
 package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class QuestionMC extends Question implements Serializable
@@ -21,7 +24,7 @@ public class QuestionMC extends Question implements Serializable
 	public String getQuestion() 
 	{
 		String outStr = super.question + "\n" 
-				+ type + "\n" + getAnswerChoices() + "\n";
+				+ type + "\n" + getAnswerChoices(true) + "\n";
 		return outStr;
 	}
 
@@ -38,20 +41,21 @@ public class QuestionMC extends Question implements Serializable
 			{
 				boolean in = askForYN("Is this choice a correct answer? (Y/N):");
 				super.questionAnswer.addResult(str, in ? "True" : "False");
-				numToInput++;
+				if ( in )
+					numToInput++;
 			}
 			else
 			{
 				super.questionAnswer.addResult(str, "");
 			}
 		}
-		if ( super.isGradeable )
+		if ( !super.isGradeable )
 		{
-			numOfInputAnswers = numToInput;
+			numOfInputAnswers = askForNumber("Enter number of answers for user to input: ", 1, numOfAnswers);
 		}
 		else
 		{
-			numOfInputAnswers = askForNumber("Enter number of answers for user to input: ", 1, numOfAnswers);
+			numOfInputAnswers = numToInput;
 		}
 	}
 
@@ -66,7 +70,7 @@ public class QuestionMC extends Question implements Serializable
 		}
 		while ( askForYN("Do you wish to modify the choices (Y/N)?") )
 		{
-			int choice = super.askForCharNum(String.format("Which choice would you like to modify?\n%s", getAnswerChoices()), super.getAlphabetVector(super.questionAnswer.getNumResults()));
+			int choice = super.askForCharNum(String.format("Which choice would you like to modify?\n%s", getAnswerChoices(true)), super.getAlphabetVector(super.questionAnswer.getNumResults()));
 			String newVal = super.askForString("Enter new value:");
 			super.questionAnswer.changeResult(choice, newVal, questionAnswer.getResult().get(1).get(choice));
 			printToMenu(getQuestion());
@@ -75,7 +79,7 @@ public class QuestionMC extends Question implements Serializable
 		{
 			while ( askForYN("Do you wish to modify the answers (Y/N)?") )
 			{
-				int choice = super.askForCharNum(String.format("Which answer would you like to modify?\n%s", getAnswerChoices()), super.getAlphabetVector(super.questionAnswer.getNumResults()));
+				int choice = super.askForCharNum(String.format("Which answer would you like to modify?\n%s", getAnswerChoices(true)), super.getAlphabetVector(super.questionAnswer.getNumResults()));
 				boolean in = askForYN("Is this choice a correct answer? (Y/N):");
 				super.questionAnswer.changeResult(choice, questionAnswer.getResult().get(0).get(choice), in ? "True" : "False");
 				printToMenu(getQuestion());
@@ -83,7 +87,7 @@ public class QuestionMC extends Question implements Serializable
 		}
 	}
 	
-	private String getAnswerChoices()
+	private String getAnswerChoices(boolean showAnswers)
 	{
 		String outStr = "";
 		char alphabet = 'A';
@@ -91,7 +95,7 @@ public class QuestionMC extends Question implements Serializable
 		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
 		{
 			outStr += String.format("%s) %-20s ", alphabet++, res.get(0).get(i));
-			if ( isGradeable )
+			if ( isGradeable && showAnswers )
 			{
 				outStr += String.format(" Is correct: %s",res.get(1).get(i));
 			}
@@ -104,6 +108,43 @@ public class QuestionMC extends Question implements Serializable
 	@Override
 	public Result askQuestion() 
 	{
-		return null;	
+		Result res = new Result();
+		printToInquiry(super.question + "\n" + getAnswerChoices(false));
+		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
+		for ( int i = 0; i < numOfInputAnswers; i++ )
+		{
+			int index = askForCharNum(String.format("Enter answer %d of %d",i+1, numOfInputAnswers), availStrings);
+			res.addResult(String.valueOf(super.indexToChar(index)), "True");
+			availStrings.remove(String.valueOf(indexToChar(index)));
+		}
+		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		return res;			
+	}
+	
+	public String tabulateQuestion(Vector<Result> results)
+	{
+		String output = "";
+		char alphabet = 'A';
+		output += super.question + "\n"; 
+		output += getAnswerChoices(false) + "\n\n";
+		Vector<Integer> count = new Vector<Integer>();
+		Iterator<Result> rIt = results.iterator();
+		for ( int res = 0; res < super.questionAnswer.getNumResults(); res++ )
+			count.add(0);
+		while ( rIt.hasNext() )
+		{
+			Result tempR = rIt.next();
+			for ( int ans = 0; ans < numOfInputAnswers; ans++ )
+			{
+				int index = super.charToInt(tempR.result.get(0).get(ans).charAt(0));
+				count.setElementAt(count.elementAt(index)+1, index);
+			}
+		}
+		for ( int res = 0; res < super.questionAnswer.getNumResults(); res++ )
+		{
+			output += String.format("%s: %d\n", alphabet, count.elementAt(res));
+			alphabet++;
+		}
+		return output;
 	}
 }

@@ -1,6 +1,10 @@
 package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class QuestionM extends Question implements Serializable
@@ -56,7 +60,6 @@ public class QuestionM extends Question implements Serializable
 		}
 	}
 	
-	
 	private String getAnswerChoices()
 	{
 		char alphabet = 'A';
@@ -69,9 +72,56 @@ public class QuestionM extends Question implements Serializable
 		return outStr;
 	}
 
+	private Map<Integer, Integer> generateAnswerMap()
+	{
+		Random rnd = new Random();
+		Map<Integer, Integer> temp = new HashMap<Integer, Integer>();
+		Vector<Integer> list = getVectorOfInts(numOfAnswers, 1);
+		int index;
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			index = rnd.nextInt(list.size());
+			temp.put(i, list.get(index));
+			list.remove(index);
+		}
+		return temp;
+	}
+	
+	private String getRandomizedAnswerChoices(Map<Integer, Integer> answerMap)
+	{
+		char alphabet = 'A';
+		String outStr = "";
+		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
+		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
+		{
+			outStr += String.format("%s) %-25s  %d) %-25s\n", alphabet++, res.get(0).get(i), i+1, res.get(1).get(answerMap.get(i)-1));
+		}
+		return outStr;
+	}
+	
 	@Override
 	public Result askQuestion() 
 	{
-		return null;	
+		Result res = new Result();
+		Map<Integer, Integer> answerMap = generateAnswerMap();
+		printToInquiry(super.question + "\n" + getRandomizedAnswerChoices(answerMap));
+		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
+		Vector<Integer> availInts = getVectorOfInts(numOfAnswers, 1);
+		ArrayList<Integer> tempRes;
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			tempRes = askForCharAndInt("Enter choice and value pair:", availStrings, availInts);
+			res.addResult(questionAnswer.result.get(0).get(tempRes.get(0)),
+					questionAnswer.result.get(1).get(answerMap.get(tempRes.get(1))-1));
+			availStrings.removeElementAt(tempRes.get(0));
+			availInts.removeElementAt(tempRes.get(1));
+		}
+		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		return res;		
+	}
+	
+	public String tabulateQuestion(Vector<Result> results)
+	{
+		return "";
 	}
 }

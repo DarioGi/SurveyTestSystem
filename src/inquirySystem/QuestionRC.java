@@ -1,6 +1,10 @@
 package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class QuestionRC extends Question implements Serializable
@@ -87,10 +91,58 @@ public class QuestionRC extends Question implements Serializable
 		}
 		return outStr;
 	}
+	
+	private Map<Integer, Integer> generateAnswerMap()
+	{
+		Random rnd = new Random();
+		Map<Integer, Integer> temp = new HashMap<Integer, Integer>();
+		Vector<Integer> list = getVectorOfInts(numOfAnswers, 1);
+		int index;
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			index = rnd.nextInt(list.size());
+			temp.put(i, list.get(index));
+			list.remove(index);
+		}
+		return temp;
+	}
+	
+	
+	private String getRandomizedAnswerChoices(Map<Integer, Integer> answerMap)
+	{
+		char alphabet = 'A';
+		String outStr = "";
+		ArrayList<ArrayList<String>> res = super.questionAnswer.getResult();
+		for ( int i = 0; i < super.questionAnswer.getNumResults(); i++ )
+		{
+			outStr += String.format("%s) %-20s\n", alphabet++, res.get(0).get(answerMap.get(i)-1));
+		}
+		return outStr;
+	}
 
 	@Override
 	public Result askQuestion() 
 	{
-		return null;	
+		Result res = new Result();
+		Map<Integer, Integer> answerMap = generateAnswerMap();
+		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
+		printToInquiry(super.question + "\n" + getRandomizedAnswerChoices(answerMap));
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			int index;
+			if ( i == 0 )
+				index = askForCharNum(String.format("Enter choice with highest rank:", i+1, numOfAnswers), availStrings);
+			else
+				index = askForCharNum(String.format("Enter choice with next highest rank:", i+1, numOfAnswers), availStrings);
+			res.addResult(questionAnswer.result.get(0).get(answerMap.get(index)-1), Integer.toString(i));
+			availStrings.remove(String.valueOf(indexToChar(index)));
+		}
+		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		return res;	
+	}
+	
+	public String tabulateQuestion(Vector<Result> results)
+	{
+		return "";
 	}
 }

@@ -131,6 +131,74 @@ public abstract class Inquiry implements Serializable
 		}
 	}
 	
+	private Vector<InquiryResult> loadAvailableResults()
+	{
+		Vector<InquiryResult> allResults = new Vector<InquiryResult>();
+		Vector<Integer> results = InquirySelection.getInquiryList(getFullSearchResultFilePath());
+		if ( !results.isEmpty() )
+		{
+			if ( !results.isEmpty() )
+			{
+				Iterator<Integer> it = results.iterator();
+				InquiryResult tempInqRes = null;
+				while ( it.hasNext() )
+				{
+					boolean foundProblem = false;
+					try
+					{
+						tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(it.next()));
+						if ( tempInqRes.getResults().size() == questions.size() )
+						{
+							for ( int i = 0; i < questions.size(); i++)
+							{
+								if ( !questions.get(i).questionAnswer.getUniqueIdentifier().equals(tempInqRes.getResults().get(i).getUniqueIdentifier()))
+									foundProblem = true;
+							}
+						}
+						if ( !foundProblem )
+							allResults.addElement(tempInqRes);
+					}
+					catch (Exception e)
+					{
+					}
+				}
+			}
+		}
+		return allResults;
+	}
+	
+	
+	public void tabulateInquiry()
+	{
+		Vector<InquiryResult> results = loadAvailableResults();
+		if ( !results.isEmpty() )
+		{
+			printToMenu(getTabulationOutput(results));
+		}
+		else
+		{
+			printToMenu("No results found!");
+		}
+	}
+	
+	
+	private String getTabulationOutput(Vector<InquiryResult> results)
+	{
+		String output = "";
+		for ( int q = 0; q < questions.size(); q++ )
+		{
+			Vector<Result> tempVect = new Vector<Result>();
+			Iterator<InquiryResult> rIt = results.iterator();
+			while ( rIt.hasNext() )
+			{
+				tempVect.addElement(rIt.next().getResults().get(q));
+			}
+			output += questions.elementAt(q).tabulateQuestion(tempVect);
+		}
+		return output;
+	}
+	
+	
 	public void takeInquiry()
 	{
 		if (questions.isEmpty() )
@@ -175,6 +243,7 @@ public abstract class Inquiry implements Serializable
 			questions.elementAt(count-1).modifyQuestion();
 		}
 	}
+	
 	
 	public void createModifyInquiry()
 	{
@@ -243,7 +312,12 @@ public abstract class Inquiry implements Serializable
 	
 	public String getFullSearchResultFilePath()
 	{
-		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + this.inquiryName + "_" + this.inquiryIndex + "_" + InquiryResult.DEFAULT_RESULT_PATH;
+		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + "/" + this.inquiryName + "_" + this.inquiryIndex + "_" + InquiryResult.DEFAULT_RESULT_EXTENSION;
+	}
+	
+	public String getFullResultFilePath(int index)
+	{
+		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + "/" + this.inquiryName + "_" + this.inquiryIndex + "_" + String.valueOf(index) + InquiryResult.DEFAULT_RESULT_EXTENSION;
 	}
 }
 	

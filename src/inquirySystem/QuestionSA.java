@@ -1,5 +1,6 @@
 package inquirySystem;
 import java.io.Serializable;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class QuestionSA extends Question implements Serializable
@@ -77,6 +78,20 @@ public class QuestionSA extends Question implements Serializable
 	@Override
 	public Result askQuestion() 
 	{
-		return null;	
+		Result res = new Result();
+		printToInquiry(super.question + "\n");
+		String ans = "";
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			ans = super.askForString(String.format("Answer %d:", i+1));
+			res.addResult(ans, "");
+		}
+		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		return res;		
+	}
+	
+	public String tabulateQuestion(Vector<Result> results)
+	{
+		return "";
 	}
 }

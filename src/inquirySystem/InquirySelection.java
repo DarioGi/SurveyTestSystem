@@ -16,6 +16,7 @@ public class InquirySelection extends Selection
 	protected SaveInquirySelection saveInquirySelection;
 	protected ModifyInquirySelection modifyInquirySelection;
 	protected TakeInquirySelection takeInquirySelection;
+	protected TabulateInquirySelection tabulateInquirySelection;
 	
 	protected int currentInquiryIndex;
 	protected Inquiry currentInquiry;
@@ -25,6 +26,7 @@ public class InquirySelection extends Selection
 	protected final String saveAStr = "Save a ";
 	protected final String modifyAStr = "Modify an Existing ";
 	protected final String takeAStr = "Take a ";
+	protected final String tabulateAStr = "Tabulate a ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
@@ -128,6 +130,15 @@ public class InquirySelection extends Selection
 					}
 					continue;
 				}
+				else if ( selection.elementAt(index -1) instanceof TabulateInquirySelection )
+				{
+					if ( currentInquiry != null )
+					{
+						currentInquiry.tabulateInquiry();
+					}
+					else
+						continue;
+				}
 			}
 			else if ( index == selection.size()+1 )
 				break;
@@ -166,6 +177,10 @@ public class InquirySelection extends Selection
 		// Take
 		takeInquirySelection = new TakeInquirySelection(getSelectionString(takeAStr, false));
 		this.selection.add(takeInquirySelection);
+		
+		// Tabulate
+		tabulateInquirySelection = new TabulateInquirySelection(getSelectionString(tabulateAStr, true));
+		this.selection.add(tabulateInquirySelection);
 	}
 	
 	protected boolean setCurrentInquiry(int inquiryIndex)
@@ -291,6 +306,8 @@ public class InquirySelection extends Selection
 			return null;
 		
 		filenameRaw = filenameRaw.substring(0, filenameRaw.lastIndexOf(".")); // Remove Extension
+		if ( filenameRaw.charAt(filenameRaw.length()-1) == '_' )
+			filenameRaw = filenameRaw.substring(0, filenameRaw.length()-1);
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
 		Vector<Integer> foundFiles = new Vector<Integer>();

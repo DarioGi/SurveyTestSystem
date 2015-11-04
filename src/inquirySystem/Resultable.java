@@ -10,4 +10,6 @@ public interface Resultable
 	boolean removeResult(int index);
 	void removeAllResults();
 	int getNumResults();
+	String getUniqueIdentifier();
+	void setUniqueIdentifier(String identifier);
 }

@@ -7,6 +7,7 @@ public class Result implements Resultable, Serializable
 {
 	ArrayList<ArrayList<String>> result;
 	private int numResults = 0;
+	private String uniqueIdentifier = "";
 	public Result()
 	{
 		result = new ArrayList<ArrayList<String>>();
@@ -85,5 +86,17 @@ public class Result implements Resultable, Serializable
 		result.get(0).set(resIndex, r1);
 		result.get(1).set(resIndex, r2);
 		return true;
+	}
+
+	@Override
+	public String getUniqueIdentifier() 
+	{
+		return uniqueIdentifier;
+	}
+
+	@Override
+	public void setUniqueIdentifier(String identifier) 
+	{
+		uniqueIdentifier = identifier;
 	}
 }

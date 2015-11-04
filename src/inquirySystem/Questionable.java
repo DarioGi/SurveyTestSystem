@@ -1,5 +1,7 @@
 package inquirySystem;
 
+import java.util.Vector;
+
 public interface Questionable 
 {
 	String getQuestion();
@@ -11,5 +13,5 @@ public interface Questionable
 	void createQuestion(); // Used when a question is being created.
 	void modifyQuestion(); // Used when a question is being modified.
 	Result askQuestion();    // Used when a question is being displayed to the user.
-	
+	String tabulateQuestion(Vector<Result> results); // Used for tabulating the results.
 }

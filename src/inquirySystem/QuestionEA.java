@@ -1,5 +1,7 @@
 package inquirySystem;
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class QuestionEA extends Question implements Serializable
@@ -47,10 +49,37 @@ public class QuestionEA extends Question implements Serializable
 			printToMenu(getQuestion());
 		}
 	}
+	
 
 	@Override
 	public Result askQuestion() 
 	{
-		return null;	
+		Result res = new Result();
+		printToInquiry(super.question + "\n");
+		String ans = "";
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			ans = super.askForString(String.format("Answer %d:", i+1));
+			res.addResult(ans, "");
+		}
+		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		return res;	
+	}
+	
+	public String tabulateQuestion(Vector<Result> results)
+	{
+		String output = "";
+		output += super.question + "\n";
+		Iterator<Result> rIt = results.iterator();
+		while ( rIt.hasNext() )
+		{
+			Result tempR = rIt.next();
+			for ( int ans = 0; ans < numOfAnswers; ans++ )
+			{
+				output += tempR.result.get(0).get(ans) + "\n";
+			}
+			output += "\n";	
+		}
+		return output;
 	}
 }
