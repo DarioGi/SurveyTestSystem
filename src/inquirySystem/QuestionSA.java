@@ -1,5 +1,9 @@
 package inquirySystem;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 @SuppressWarnings("serial")
@@ -92,6 +96,42 @@ public class QuestionSA extends Question implements Serializable
 	
 	public String tabulateQuestion(Vector<Result> results)
 	{
-		return "";
+		String output = "";
+		output += super.question + "\n"; 
+		output += getAnswerChoices() + "\n";
+		Map<String, Integer> ansMap = new HashMap<String, Integer>();
+		Iterator<Result> rIt = results.iterator();
+		while ( rIt.hasNext() )
+		{
+			Result tempR = rIt.next();
+			ArrayList<String> ansList = new ArrayList<String>();
+			for ( int ans = 0; ans < tempR.getNumResults(); ans++ )
+			{
+				ansList.add(tempR.result.get(0).get(ans));
+			}
+			if ( ansMap.containsKey(ansList.toString()) )
+				ansMap.put(ansList.toString(), ansMap.get(ansList.toString()) + 1);
+			else
+				ansMap.put(ansList.toString(), 1);
+		}
+		for ( String key : ansMap.keySet() )
+		{
+			int index = 1;
+			String tempStr = String.format("%d)\n", ansMap.get(key));
+			key = key.substring(1, key.length()-1);
+			for ( String val : key.split(", ") )
+			{
+				tempStr += String.format("%s. %s\n", String.valueOf(index++), val.trim());
+			}
+			output += tempStr + "\n";
+		}
+		return output;
+	}
+	
+	
+	public boolean gradeQuestion(Result result) 
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

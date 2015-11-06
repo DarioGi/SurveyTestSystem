@@ -14,4 +14,5 @@ public interface Questionable
 	void modifyQuestion(); // Used when a question is being modified.
 	Result askQuestion();    // Used when a question is being displayed to the user.
 	String tabulateQuestion(Vector<Result> results); // Used for tabulating the results.
+	boolean gradeQuestion(Result result); //  Returns true if the answer matches.
 }

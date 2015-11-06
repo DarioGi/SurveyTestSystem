@@ -75,7 +75,7 @@ public class QuestionTF extends Question implements Serializable
 		Iterator<Result> rIt = results.iterator();
 		while ( rIt.hasNext() )
 		{
-			if ( rIt.next().result.get(0).get(0).equals(super.questionAnswer.result.get(0).get(0)) )
+			if ( rIt.next().result.get(0).get(0).equals("True") )
 				trueCount++;
 			else
 				falseCount++;
@@ -84,5 +84,21 @@ public class QuestionTF extends Question implements Serializable
 		output += String.format("False: %d\n", falseCount);
 		output += "\n";
 		return output;
+	}
+
+	public boolean gradeQuestion(Result result) 
+	{
+		if ( !isGradeable )
+			return true;
+		if ( !result.getUniqueIdentifier().equals(questionAnswer.getUniqueIdentifier()) ||
+				result.getNumResults() !=  questionAnswer.getNumResults() )
+		{
+			printToMenu("Error: Supplied result is incompatible with the question.");
+			return false;
+		}
+		if ( result.getResult().get(0).get(0).equals(questionAnswer.getResult().get(0).get(0)) )
+			return true;
+		else
+			return false;
 	}
 }

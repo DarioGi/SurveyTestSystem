@@ -1,7 +1,10 @@
 package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
@@ -104,17 +107,27 @@ public class QuestionM extends Question implements Serializable
 	{
 		Result res = new Result();
 		Map<Integer, Integer> answerMap = generateAnswerMap();
+		Map<String, String> inputMap = new HashMap<String, String>();
 		printToInquiry(super.question + "\n" + getRandomizedAnswerChoices(answerMap));
 		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
 		Vector<Integer> availInts = getVectorOfInts(numOfAnswers, 1);
 		ArrayList<Integer> tempRes;
+		String[] list = new String[numOfAnswers];
 		for ( int i = 0; i < numOfAnswers; i++ )
 		{
 			tempRes = askForCharAndInt("Enter choice and value pair:", availStrings, availInts);
-			res.addResult(questionAnswer.result.get(0).get(tempRes.get(0)),
-					questionAnswer.result.get(1).get(answerMap.get(tempRes.get(1))-1));
+			list[i] = availStrings.get(tempRes.get(0));
+			inputMap.put(list[i], String.valueOf(answerMap.get(availInts.get(tempRes.get(1))-1)));
+			//res.addResult(questionAnswer.result.get(0).get(tempRes.get(0)),
+			//		questionAnswer.result.get(1).get(answerMap.get(tempRes.get(1))-1));
 			availStrings.removeElementAt(tempRes.get(0));
 			availInts.removeElementAt(tempRes.get(1));
+		}
+		Arrays.sort(list);
+		
+		for (int i = 0; i < numOfAnswers; i++ )
+		{
+			res.addResult(list[i], inputMap.get(list[i]));
 		}
 		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
 		return res;		
@@ -122,6 +135,45 @@ public class QuestionM extends Question implements Serializable
 	
 	public String tabulateQuestion(Vector<Result> results)
 	{
-		return "";
+		String output = "";
+		output += super.question + "\n"; 
+		output += getAnswerChoices() + "\n";
+		Vector<Integer> count = new Vector<Integer>();
+		Map<String, Integer> ansMap = new HashMap<String, Integer>();
+		Iterator<Result> rIt = results.iterator();
+		for ( int res = 0; res < super.questionAnswer.getNumResults(); res++ )
+			count.add(0);
+		while ( rIt.hasNext() )
+		{
+			Result tempR = rIt.next();
+			ArrayList<String> ansList = new ArrayList<String>();
+			for ( int ans = 0; ans < super.questionAnswer.getNumResults(); ans++ )
+			{
+				ansList.add(tempR.result.get(1).get(ans));
+			}
+			if ( ansMap.containsKey(ansList.toString()) )
+				ansMap.put(ansList.toString(), ansMap.get(ansList.toString()) + 1);
+			else
+				ansMap.put(ansList.toString(), 1);
+		}
+		for ( String key : ansMap.keySet() )
+		{
+			char alphabet = 'A';
+			String tempStr = String.format("%d)\n", ansMap.get(key));
+			key = key.substring(1, key.length()-1);
+			for ( String val : key.split(", ") )
+			{
+				tempStr += String.format("%s) %s\n", String.valueOf(alphabet++), val.trim());
+			}
+			output += tempStr + "\n";
+		}
+		return output;
+	}
+	
+	
+	public boolean gradeQuestion(Result result) 
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

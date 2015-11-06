@@ -2,6 +2,7 @@ package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
@@ -125,6 +126,7 @@ public class QuestionRC extends Question implements Serializable
 	{
 		Result res = new Result();
 		Map<Integer, Integer> answerMap = generateAnswerMap();
+		Map<String, Integer> inputMap = new HashMap<String, Integer>();
 		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
 		printToInquiry(super.question + "\n" + getRandomizedAnswerChoices(answerMap));
 		for ( int i = 0; i < numOfAnswers; i++ )
@@ -134,15 +136,60 @@ public class QuestionRC extends Question implements Serializable
 				index = askForCharNum(String.format("Enter choice with highest rank:", i+1, numOfAnswers), availStrings);
 			else
 				index = askForCharNum(String.format("Enter choice with next highest rank:", i+1, numOfAnswers), availStrings);
-			res.addResult(questionAnswer.result.get(0).get(answerMap.get(index)-1), Integer.toString(i));
+			inputMap.put(String.valueOf(indexToChar(answerMap.get(index)-1)), i);
 			availStrings.remove(String.valueOf(indexToChar(index)));
 		}
 		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
+		char alph = 'A';
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			res.addResult(String.valueOf(alph), String.valueOf(inputMap.get(String.valueOf(alph))));
+			alph++;
+		}
 		return res;	
 	}
 	
 	public String tabulateQuestion(Vector<Result> results)
 	{
-		return "";
+		String output = "";
+		output += super.question + "\n"; 
+		output += getAnswerChoices() + "\n\n";
+		Vector<Integer> count = new Vector<Integer>();
+		Map<String, Integer> ansMap = new HashMap<String, Integer>();
+		Iterator<Result> rIt = results.iterator();
+		for ( int res = 0; res < super.questionAnswer.getNumResults(); res++ )
+			count.add(0);
+		while ( rIt.hasNext() )
+		{
+			Result tempR = rIt.next();
+			ArrayList<String> ansList = new ArrayList<String>();
+			for ( int ans = 0; ans < super.questionAnswer.getNumResults(); ans++ )
+			{
+				ansList.add(tempR.result.get(1).get(ans));
+			}
+			if ( ansMap.containsKey(ansList.toString()) )
+				ansMap.put(ansList.toString(), ansMap.get(ansList.toString()) + 1);
+			else
+				ansMap.put(ansList.toString(), 1);
+		}
+		for ( String key : ansMap.keySet() )
+		{
+			char alphabet = 'A';
+			String tempStr = String.format("%d)\n", ansMap.get(key));
+			key = key.substring(1, key.length()-1);
+			for ( String val : key.split(", ") )
+			{
+				tempStr += String.format("%s) %s\n", String.valueOf(alphabet++), val.trim());
+			}
+			output += tempStr + "\n";
+		}
+		return output;
+	}
+	
+	
+	public boolean gradeQuestion(Result result) 
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

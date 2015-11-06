@@ -82,4 +82,11 @@ public class QuestionEA extends Question implements Serializable
 		}
 		return output;
 	}
+	
+	
+	public boolean gradeQuestion(Result result) 
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

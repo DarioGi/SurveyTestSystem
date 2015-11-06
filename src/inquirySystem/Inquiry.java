@@ -135,7 +135,7 @@ public abstract class Inquiry implements Serializable
 	{
 		Vector<InquiryResult> allResults = new Vector<InquiryResult>();
 		Vector<Integer> results = InquirySelection.getInquiryList(getFullSearchResultFilePath());
-		if ( !results.isEmpty() )
+		if ( results != null && !results.isEmpty() )
 		{
 			if ( !results.isEmpty() )
 			{
@@ -181,6 +181,97 @@ public abstract class Inquiry implements Serializable
 		}
 	}
 	
+	
+	public void gradeInquiry()
+	{
+		Vector<InquiryResult> results = loadAvailableResults();
+		if ( !results.isEmpty() )
+		{
+			createResultLoadMenu();
+			if ( currentInquiryResult != null )
+				gradeQuestions(currentInquiryResult);
+		}
+		else
+		{
+			printToMenu("No results found!");
+		}
+	}
+	
+	private String gradeQuestions(InquiryResult res)
+	{
+		Iterator<Question> itQ = questions.iterator();
+		Iterator<Result> itR = res.getResults().iterator();
+		Question tempQ;
+		Result tempR;
+		int totalWeight = 0, correctWeight = 0;
+		int gradedQuestionAmount = 0;
+		
+		while ( itQ.hasNext() )
+		{
+			tempQ = itQ.next();
+			tempR = itR.next();
+			if ( tempQ.gradeQuestion(itR.next()) )
+				correctWeight += tempQ.getAnswerWeight();
+			if ( tempQ.getAnswerWeight() != 0 )
+				gradedQuestionAmount++;
+			totalWeight += tempQ.getAnswerWeight();	
+		}
+		
+		return String.format("Result: ");
+	}
+	
+	protected void createResultLoadMenu()
+	{
+		Vector<Integer> results = InquirySelection.getInquiryList(getFullSearchResultFilePath());
+		ChoiceInquirySelection loadResultSelection = new ChoiceInquirySelection(" ");
+		Vector<SelectionChoice> loadResultSelections = new Vector<SelectionChoice>();
+		
+		Iterator<Integer> it = results.iterator();
+		while ( it.hasNext() )
+		{
+			loadResultSelections.addElement(new SelectionChoice());
+			loadResultSelection.addSelection(new ChoiceSelection("Result" + " " + Integer.toString(it.next()), loadResultSelections.lastElement()));
+		}
+		loadResultSelection.select(null);
+		Iterator<SelectionChoice> itSC = loadResultSelections.iterator();
+		int count = 0;
+		while ( itSC.hasNext() )
+		{
+			int choice = itSC.next().getSelectionChoice();
+			if ( choice != -1 )
+			{
+				InquiryResult tempInqRes = null;
+				try
+				{
+					boolean problemFound = false;
+					tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(it.next()));
+					if ( tempInqRes.getResults().size() == questions.size() )
+					{
+						for ( int i = 0; i < questions.size(); i++)
+						{
+							if ( !questions.get(i).questionAnswer.getUniqueIdentifier().equals(tempInqRes.getResults().get(i).getUniqueIdentifier()))
+								problemFound = true;
+						}
+					}
+					else
+					{
+						problemFound = true;
+					}
+					if ( !problemFound )
+					{
+						this.currentInquiryResult = tempInqRes;
+					}
+					else	
+					{
+						printToMenu("Incompatible result! Try again...\n");
+					}
+				}
+				catch (Exception e)
+				{
+				}
+			}
+		}
+	}
 	
 	private String getTabulationOutput(Vector<InquiryResult> results)
 	{

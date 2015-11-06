@@ -145,6 +145,13 @@ public class QuestionMC extends Question implements Serializable
 			output += String.format("%s: %d\n", alphabet, count.elementAt(res));
 			alphabet++;
 		}
-		return output;
+		return output + "\n";
+	}
+	
+	
+	public boolean gradeQuestion(Result result) 
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

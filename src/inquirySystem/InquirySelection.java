@@ -17,6 +17,7 @@ public class InquirySelection extends Selection
 	protected ModifyInquirySelection modifyInquirySelection;
 	protected TakeInquirySelection takeInquirySelection;
 	protected TabulateInquirySelection tabulateInquirySelection;
+	protected GradeInquirySelection gradeInquirySelection;
 	
 	protected int currentInquiryIndex;
 	protected Inquiry currentInquiry;
@@ -27,6 +28,7 @@ public class InquirySelection extends Selection
 	protected final String modifyAStr = "Modify an Existing ";
 	protected final String takeAStr = "Take a ";
 	protected final String tabulateAStr = "Tabulate a ";
+	protected final String gradeAStr = "Grade a ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
@@ -139,6 +141,15 @@ public class InquirySelection extends Selection
 					else
 						continue;
 				}
+				else if ( selection.elementAt(index - 1) instanceof GradeInquirySelection )
+				{
+					 if ( currentInquiry != null )
+					 {
+						 currentInquiry.gradeInquiry();
+					 }
+					 else
+						 continue;
+				}
 			}
 			else if ( index == selection.size()+1 )
 				break;
@@ -181,6 +192,12 @@ public class InquirySelection extends Selection
 		// Tabulate
 		tabulateInquirySelection = new TabulateInquirySelection(getSelectionString(tabulateAStr, true));
 		this.selection.add(tabulateInquirySelection);
+		
+		if ( type == Inquiries.Test )
+		{
+			gradeInquirySelection = new GradeInquirySelection(getSelectionString(gradeAStr, true));
+			this.selection.addElement(gradeInquirySelection);
+		}
 	}
 	
 	protected boolean setCurrentInquiry(int inquiryIndex)
