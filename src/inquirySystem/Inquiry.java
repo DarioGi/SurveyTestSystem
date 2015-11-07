@@ -84,7 +84,7 @@ public abstract class Inquiry implements Serializable
 			}
 			else if ( count == 4)
 			{
-				q = new QuestionEA("", this.areQuestionsGradeable);
+				q = new QuestionEA("");
 				q.createQuestion();
 				questions.addElement(q);
 			}
@@ -155,6 +155,10 @@ public abstract class Inquiry implements Serializable
 									foundProblem = true;
 							}
 						}
+						else
+						{
+							foundProblem = true;
+						}
 						if ( !foundProblem )
 							allResults.addElement(tempInqRes);
 					}
@@ -189,7 +193,7 @@ public abstract class Inquiry implements Serializable
 		{
 			createResultLoadMenu();
 			if ( currentInquiryResult != null )
-				gradeQuestions(currentInquiryResult);
+				printToMenu(gradeQuestions(currentInquiryResult));
 		}
 		else
 		{
@@ -203,21 +207,28 @@ public abstract class Inquiry implements Serializable
 		Iterator<Result> itR = res.getResults().iterator();
 		Question tempQ;
 		Result tempR;
-		int totalWeight = 0, correctWeight = 0;
-		int gradedQuestionAmount = 0;
+		double totalWeight = 0, correctWeight = 0;
+		int gradeableQuestions = 0;
 		
 		while ( itQ.hasNext() )
 		{
 			tempQ = itQ.next();
 			tempR = itR.next();
-			if ( tempQ.gradeQuestion(itR.next()) )
+			if ( tempQ.gradeQuestion(tempR) )
 				correctWeight += tempQ.getAnswerWeight();
-			if ( tempQ.getAnswerWeight() != 0 )
-				gradedQuestionAmount++;
-			totalWeight += tempQ.getAnswerWeight();	
+			if ( tempQ.isGradeable )
+			{
+				gradeableQuestions++;
+				totalWeight += tempQ.getAnswerWeight();	
+			}
 		}
-		
-		return String.format("Result: ");
+		if ( gradeableQuestions == 0 || questions.isEmpty() )
+			return String.format("Grade: 100/100.\n");
+		else
+		{
+			double base = gradeableQuestions/(double)questions.size();
+			return String.format("Grade: %d/%d\n", (int)Math.ceil((correctWeight/totalWeight) * base * 100), (int)Math.ceil(base * 100));
+		}
 	}
 	
 	protected void createResultLoadMenu()
@@ -244,7 +255,7 @@ public abstract class Inquiry implements Serializable
 				try
 				{
 					boolean problemFound = false;
-					tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(it.next()));
+					tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(count));
 					if ( tempInqRes.getResults().size() == questions.size() )
 					{
 						for ( int i = 0; i < questions.size(); i++)
@@ -260,6 +271,7 @@ public abstract class Inquiry implements Serializable
 					if ( !problemFound )
 					{
 						this.currentInquiryResult = tempInqRes;
+						return;
 					}
 					else	
 					{
@@ -270,6 +282,7 @@ public abstract class Inquiry implements Serializable
 				{
 				}
 			}
+			count++;
 		}
 	}
 	

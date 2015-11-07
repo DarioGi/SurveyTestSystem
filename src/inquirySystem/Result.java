@@ -68,6 +68,8 @@ public class Result implements Resultable, Serializable
 	public void removeAllResults() 
 	{
 		result.clear();
+		result.add(new ArrayList<String>());
+		result.add(new ArrayList<String>());
 		numResults = 0;
 	}
 

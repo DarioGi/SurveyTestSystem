@@ -131,7 +131,28 @@ public class QuestionSA extends Question implements Serializable
 	
 	public boolean gradeQuestion(Result result) 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		if ( !isGradeable )
+			return true;
+		if ( !result.getUniqueIdentifier().equals(questionAnswer.getUniqueIdentifier()) ||
+				result.getNumResults() != questionAnswer.getNumResults() )
+		{
+			printToMenu("Error: Supplied result is incompatible with the question.");
+			return false;
+		}
+		int index = 0;
+		try
+		{
+			while ( index < result.getNumResults())
+			{
+				if ( !questionAnswer.getResult().get(0).get(index).equalsIgnoreCase(result.getResult().get(0).get(index)) )
+					return false;
+				index++;
+			}
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+		return true;
 	}
 }

@@ -10,9 +10,9 @@ public class QuestionEA extends Question implements Serializable
 	protected static final String type = "Essay Answer";
 	private int numOfAnswers = 1;
 	
-	QuestionEA(String question, boolean isGradeable) 
+	QuestionEA(String question) 
 	{
-		super(question, isGradeable);
+		super(question, false);
 		super.questionType = type;
 		super.answerWeight = 0;
 	}
@@ -22,7 +22,7 @@ public class QuestionEA extends Question implements Serializable
 	{
 		String outStr = super.question + "\n" 
 								+ type + "\n" 
-								+ "Number of answers: " + String.valueOf(numOfAnswers) ;
+								+ "Number of responses: " + String.valueOf(numOfAnswers) ;
 		
 		return outStr;
 	}
@@ -31,7 +31,7 @@ public class QuestionEA extends Question implements Serializable
 	public void createQuestion() 
 	{
 		super.enterPrompt();
-		numOfAnswers = super.askForNumber("Enter number of answers:", 1, MAX_EA_ANSWERS);
+		numOfAnswers = super.askForNumber("Enter number of responses:", 1, MAX_EA_ANSWERS);
 	}
 
 	@Override
@@ -43,9 +43,9 @@ public class QuestionEA extends Question implements Serializable
 			enterPrompt();
 			printToMenu(getQuestion());
 		}
-		if ( askForYN("Do you wish to modify number of answers (Y/N)?") )
+		if ( askForYN("Do you wish to modify number of responses (Y/N)?") )
 		{
-			numOfAnswers = super.askForNumber("Enter number of answers:", 1, MAX_EA_ANSWERS);
+			numOfAnswers = super.askForNumber("Enter number of responses:", 1, MAX_EA_ANSWERS);
 			printToMenu(getQuestion());
 		}
 	}
@@ -59,7 +59,7 @@ public class QuestionEA extends Question implements Serializable
 		String ans = "";
 		for ( int i = 0; i < numOfAnswers; i++ )
 		{
-			ans = super.askForString(String.format("Answer %d:", i+1));
+			ans = super.askForString(String.format("Response %d:", i+1));
 			res.addResult(ans, "");
 		}
 		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
@@ -86,7 +86,6 @@ public class QuestionEA extends Question implements Serializable
 	
 	public boolean gradeQuestion(Result result) 
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

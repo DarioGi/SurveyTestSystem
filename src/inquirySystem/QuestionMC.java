@@ -1,6 +1,7 @@
 package inquirySystem;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -111,11 +112,24 @@ public class QuestionMC extends Question implements Serializable
 		Result res = new Result();
 		printToInquiry(super.question + "\n" + getAnswerChoices(false));
 		Vector<String> availStrings = getAlphabetVector(numOfAnswers);
+		Map<String, Integer> ansMap = new HashMap<String, Integer>();
 		for ( int i = 0; i < numOfInputAnswers; i++ )
 		{
 			int index = askForCharNum(String.format("Enter answer %d of %d",i+1, numOfInputAnswers), availStrings);
-			res.addResult(String.valueOf(super.indexToChar(index)), "True");
+			ansMap.put(String.valueOf(super.indexToChar(index)), 1);
 			availStrings.remove(String.valueOf(indexToChar(index)));
+		}
+		char alphabet = 'A';
+		for ( int i = 0; i < numOfAnswers; i++ )
+		{
+			if ( ansMap.containsKey(String.valueOf(alphabet)) )
+			{
+				res.addResult(String.valueOf(alphabet++), "True");
+			}
+			else
+			{
+				res.addResult(String.valueOf(alphabet++), "False");
+			}
 		}
 		res.setUniqueIdentifier(super.questionAnswer.getUniqueIdentifier());
 		return res;			
@@ -134,10 +148,13 @@ public class QuestionMC extends Question implements Serializable
 		while ( rIt.hasNext() )
 		{
 			Result tempR = rIt.next();
-			for ( int ans = 0; ans < numOfInputAnswers; ans++ )
+			for ( int ans = 0; ans < numOfAnswers; ans++ )
 			{
-				int index = super.charToInt(tempR.result.get(0).get(ans).charAt(0));
-				count.setElementAt(count.elementAt(index)+1, index);
+				if ( tempR.result.get(1).get(ans).equalsIgnoreCase("True") )
+				{
+					int index = super.charToInt(tempR.result.get(0).get(ans).charAt(0));
+					count.setElementAt(count.elementAt(index)+1, index);
+				}
 			}
 		}
 		for ( int res = 0; res < super.questionAnswer.getNumResults(); res++ )
@@ -151,7 +168,28 @@ public class QuestionMC extends Question implements Serializable
 	
 	public boolean gradeQuestion(Result result) 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		if ( !isGradeable )
+			return true;
+		if ( !result.getUniqueIdentifier().equals(questionAnswer.getUniqueIdentifier()) ||
+				result.getNumResults() != questionAnswer.getNumResults() )
+		{
+			printToMenu("Error: Supplied result is incompatible with the question.");
+			return false;
+		}
+		int index = 0;
+		try
+		{
+			while ( index < result.getNumResults())
+			{
+				if ( !questionAnswer.getResult().get(1).get(index).equalsIgnoreCase(result.getResult().get(1).get(index)) )
+					return false;
+				index++;
+			}
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+		return true;
 	}
 }
