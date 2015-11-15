@@ -32,7 +32,7 @@ public class InquirySelection extends Selection
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
-	public final static String DEFAULT_INQUIRY_PATH = "./Inquiries";
+	public final static String DEFAULT_INQUIRY_PATH = "Inquiries";
 	public final static String DEFAULT_INQUIRY_EXTENSION = ".inquiry";
 	private Vector<SelectionChoice> loadInquirySelections;
 	

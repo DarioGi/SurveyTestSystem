@@ -208,14 +208,24 @@ public abstract class Inquiry implements Serializable
 		Question tempQ;
 		Result tempR;
 		double totalWeight = 0, correctWeight = 0;
+		int correctAnswers = 0;
 		int gradeableQuestions = 0;
-		
+		int numEssays = 0;
 		while ( itQ.hasNext() )
 		{
 			tempQ = itQ.next();
 			tempR = itR.next();
 			if ( tempQ.gradeQuestion(tempR) )
+			{
 				correctWeight += tempQ.getAnswerWeight();
+				if  ( tempQ.isGradeable )
+					correctAnswers++;
+			}
+			else
+			{
+				if ( tempQ.getAnswerWeight() == 0 )
+					numEssays++;
+			}
 			if ( tempQ.isGradeable )
 			{
 				gradeableQuestions++;
@@ -223,11 +233,23 @@ public abstract class Inquiry implements Serializable
 			}
 		}
 		if ( gradeableQuestions == 0 || questions.isEmpty() )
-			return String.format("Grade: 100/100.\n");
+			return String.format("Grade: 100/100. Review %d essay(s).\n", numEssays);
 		else
 		{
 			double base = gradeableQuestions/(double)questions.size();
-			return String.format("Grade: %d/%d\n", (int)Math.ceil((correctWeight/totalWeight) * base * 100), (int)Math.ceil(base * 100));
+			if ( numEssays == 0 )
+				return String.format("Grade: %d/%d, %d/%d correct questions\n",
+						(int)Math.ceil((correctWeight/totalWeight) * base * 100),
+						(int)Math.ceil(base * 100),
+						correctAnswers,
+						gradeableQuestions);
+			else
+				return String.format("Grade: %d/%d, %d/%d correct questions, review %d essay(s).\n",
+						(int)Math.ceil((correctWeight/totalWeight) * base * 100),
+						(int)Math.ceil(base * 100),
+						correctAnswers,
+						gradeableQuestions,
+						numEssays);	
 		}
 	}
 	

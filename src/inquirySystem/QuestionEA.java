@@ -43,11 +43,6 @@ public class QuestionEA extends Question implements Serializable
 			enterPrompt();
 			printToMenu(getQuestion());
 		}
-		if ( askForYN("Do you wish to modify number of responses (Y/N)?") )
-		{
-			numOfAnswers = super.askForNumber("Enter number of responses:", 1, MAX_EA_ANSWERS);
-			printToMenu(getQuestion());
-		}
 	}
 	
 

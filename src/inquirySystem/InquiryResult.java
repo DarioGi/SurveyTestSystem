@@ -12,7 +12,7 @@ public class InquiryResult implements Serializable
 	protected String resultExtension;
 	protected int resultIndex;
 	protected boolean isResultSaved;
-	public final static String DEFAULT_RESULT_PATH = "./Results";
+	public final static String DEFAULT_RESULT_PATH = "/Results";
 	public final static String DEFAULT_RESULT_EXTENSION = ".result";
 	transient private OutputMenu outMenu;
 	protected Vector<Result> results;
