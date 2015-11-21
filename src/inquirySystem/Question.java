@@ -1,5 +1,11 @@
 package inquirySystem;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
 public abstract class Question implements Questionable, Serializable
@@ -19,6 +25,7 @@ public abstract class Question implements Questionable, Serializable
 		this.question = question;
 		this.isGradeable = isGradeable;
 		questionAnswer = new Result();
+		questionAnswer.setUniqueIdentifier(getHashCode());
 		this.answerWeight = DEFAULT_ANSWER_WEIGHT;
 		outInquiry = new OutputInquiry();
 		outMenu = new OutputMenu();
@@ -123,17 +130,182 @@ public abstract class Question implements Questionable, Serializable
 		return in;
 	}
 	
-	protected String askForYN(String prompt)
+	protected String askForCharStr(String prompt, Vector<String> acceptableStrings)
+	{
+		String choice;
+		Iterator<String> it = acceptableStrings.iterator();
+		boolean choiceFound = false;
+		while ( true )
+		{
+			printToMenu(prompt);
+			it = acceptableStrings.iterator();
+			choice = getInput();
+			while ( it.hasNext() )
+			{
+				if ( choice.compareToIgnoreCase(it.next()) == 0 )
+					choiceFound = true;
+			}
+			if ( choiceFound )
+			{
+				return choice.toUpperCase();
+			}
+			else
+			{
+				printToMenu(String.format("Invalid input. Acceptable answers: %s", acceptableStrings.toString()));
+			}
+		}
+	}
+	// -1 error, 1-26 A-Z
+	protected int askForCharNum(String prompt, Vector<String> acceptableStrings)
+	{
+		String out = askForCharStr(prompt, acceptableStrings);
+		if ( out.length() == 1 )
+			return Character.getNumericValue(out.charAt(0)) - Character.getNumericValue('A');
+		else
+			return -1;
+	}
+	
+	protected boolean askForYN(String prompt)
 	{
 		String in = "";
 		while ( true )
 		{
 			printToMenu(prompt);
 			in = getInput();
-			if ( in.compareToIgnoreCase("y") == 0 ||
-					in.compareToIgnoreCase("n") == 0 )
-				break;
+			if ( in.compareToIgnoreCase("y") == 0 )
+				return true;
+			else if ( in.compareToIgnoreCase("n") == 0)
+				return false;
 		}
-		return in;
+	}
+	
+	//Special use only
+	protected char indexToChar(int val)
+	{
+		char retChar = 'A';
+		for ( int i = 0; i < val; i++)
+			retChar++;
+		return retChar;
+	}
+	
+	protected int charToInt(char ch)
+	{
+		return Character.getNumericValue(ch) - Character.getNumericValue('A');
+	}
+	
+	
+	protected ArrayList<Integer> askForCharAndInt(String prompt, Vector<String> acceptableStrings, Vector<Integer> acceptableInts)
+	{
+		Iterator<String> it = acceptableStrings.iterator();
+		String ans;
+		while ( true )
+		{
+			printToMenu(prompt);
+			it = acceptableStrings.iterator();
+			ans = getInput();
+			int indexLetter = -1;
+			int indexInt = -1;
+			if ( ans.length() < 3 )
+			{
+				printToMenu(String.format("Invalid input. Answer format: letter integer"));
+				continue;
+			}
+			boolean letterChoiceFound = false;
+			while ( it.hasNext() )
+			{
+				indexLetter++;
+				if ( (String.valueOf(ans.charAt(0))).compareToIgnoreCase(it.next()) == 0 )
+				{
+					letterChoiceFound = true;
+					break;
+				}
+			}
+			if ( letterChoiceFound  )
+			{
+				if ( ans.charAt(1) == ' ' )
+				{
+					int choice = -1;
+					try
+					{
+						choice = Integer.parseInt(ans.substring(2));
+					}
+					catch (NumberFormatException e)
+					{
+						printToMenu(String.format("Invalid input. A choice value you entered was already entered."));
+						continue;
+					}
+					if ( choice != -1 )
+					{
+						boolean numChoiceFound = false;
+						Iterator<Integer> intIt = acceptableInts.iterator();
+						while ( intIt.hasNext() )
+						{
+							indexInt++;
+							if ( choice == intIt.next() )
+							{
+								numChoiceFound = true;
+								break;
+							}
+						}
+						if ( numChoiceFound )
+						{
+							ArrayList<Integer> ret = new ArrayList<Integer>();
+							ret.add(indexLetter);
+							ret.add(indexInt);
+							return ret;
+						}
+						else
+						{
+							printToMenu(String.format("Invalid input. A choice value you entered was already entered."));
+							continue;
+						}
+					}
+					else
+					{
+						printToMenu(String.format("Invalid input. Answer format: letter integer"));
+						continue;
+					}
+				}
+				else
+				{
+					printToMenu(String.format("Invalid input. Answer format: letter integer"));
+					continue;
+				}
+			}
+			else
+			{
+				printToMenu(String.format("Invalid input. A letter you entered was already entered."));
+			}
+		}
+	}
+	
+	protected Vector<String> getAlphabetVector(int numOfChars)
+	{
+		if ( numOfChars < 1 || numOfChars > 26 )
+			return null;
+		Vector<String> vS = new Vector<String>();
+		char elem = 'A';
+		for ( int i = 0; i < numOfChars; i++ )
+		{
+			vS.addElement(String.valueOf(elem));
+			elem++;
+		}
+		return vS;
+	}
+	
+	public Vector<Integer> getVectorOfInts(int numOfInts, int startVal)
+	{
+		Vector<Integer> list = new Vector<Integer>();
+		for ( int i = 0; i < numOfInts; i++)
+		{
+			list.add(startVal++);
+		}
+		return list;
+	}
+	
+	public String getHashCode()
+	{
+		Random r = new Random();
+		return String.valueOf(String.valueOf(r.nextInt()).hashCode());
 	}
 }

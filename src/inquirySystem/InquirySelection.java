@@ -14,6 +14,10 @@ public class InquirySelection extends Selection
 	protected DisplayInquirySelection displayInquirySelection;
 	protected ChoiceInquirySelection loadInquirySelection;
 	protected SaveInquirySelection saveInquirySelection;
+	protected ModifyInquirySelection modifyInquirySelection;
+	protected TakeInquirySelection takeInquirySelection;
+	protected TabulateInquirySelection tabulateInquirySelection;
+	protected GradeInquirySelection gradeInquirySelection;
 	
 	protected int currentInquiryIndex;
 	protected Inquiry currentInquiry;
@@ -21,10 +25,14 @@ public class InquirySelection extends Selection
 	protected final String displayAStr = "Display a ";
 	protected final String loadAStr = "Load a ";
 	protected final String saveAStr = "Save a ";
+	protected final String modifyAStr = "Modify an Existing ";
+	protected final String takeAStr = "Take a ";
+	protected final String tabulateAStr = "Tabulate a ";
+	protected final String gradeAStr = "Grade a ";
 	public final static String INQUIRY_TEST = "Test";
 	public final static String INQUIRY_SURVEY = "Survey";
 	public final static String INQUIRY_DEFAULT = "INVALID";
-	public final static String DEFAULT_INQUIRY_PATH = "./Inquiries";
+	public final static String DEFAULT_INQUIRY_PATH = "Inquiries";
 	public final static String DEFAULT_INQUIRY_EXTENSION = ".inquiry";
 	private Vector<SelectionChoice> loadInquirySelections;
 	
@@ -55,10 +63,10 @@ public class InquirySelection extends Selection
 					switch ( type )
 					{
 						case Survey:
-							inquiry = new InquirySurvey(INQUIRY_SURVEY, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(), DEFAULT_INQUIRY_EXTENSION, false);
+							inquiry = new InquirySurvey(INQUIRY_SURVEY, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(getFullSearchFilePath()), DEFAULT_INQUIRY_EXTENSION, false);
 							break;
 						case Test:
-							inquiry = new InquiryTest(INQUIRY_TEST, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(), DEFAULT_INQUIRY_EXTENSION, false);
+							inquiry = new InquiryTest(INQUIRY_TEST, DEFAULT_INQUIRY_PATH, getFirstAvailableInquiryIndex(getFullSearchFilePath()), DEFAULT_INQUIRY_EXTENSION, false);
 					}
 					selection.elementAt(index-1).select(inquiry);
 					currentInquiry = inquiry;
@@ -100,6 +108,48 @@ public class InquirySelection extends Selection
 						continue;
 					}
 				}
+				else if ( selection.elementAt(index -1) instanceof ModifyInquirySelection )
+				{
+					Inquiry temp = loadInquiry();
+					if ( temp != null )
+					{
+						currentInquiry = temp;
+						addInquiryToVector(currentInquiry);
+						currentInquiry.modifyInquiry();
+						createMenu();
+					}
+					continue;
+				}
+				else if ( selection.elementAt(index -1) instanceof TakeInquirySelection )
+				{
+					Inquiry temp = loadInquiry();
+					if ( temp != null )
+					{
+						currentInquiry = temp;
+						addInquiryToVector(currentInquiry);
+						currentInquiry.takeInquiry();
+						createMenu();
+					}
+					continue;
+				}
+				else if ( selection.elementAt(index -1) instanceof TabulateInquirySelection )
+				{
+					if ( currentInquiry != null )
+					{
+						currentInquiry.tabulateInquiry();
+					}
+					else
+						continue;
+				}
+				else if ( selection.elementAt(index - 1) instanceof GradeInquirySelection )
+				{
+					 if ( currentInquiry != null )
+					 {
+						 currentInquiry.gradeInquiry();
+					 }
+					 else
+						 continue;
+				}
 			}
 			else if ( index == selection.size()+1 )
 				break;
@@ -130,6 +180,24 @@ public class InquirySelection extends Selection
 		// Save
 		saveInquirySelection = new SaveInquirySelection(getSelectionString(saveAStr, true));
 		this.selection.add(saveInquirySelection);
+		
+		// Modify
+		modifyInquirySelection = new ModifyInquirySelection(getSelectionString(modifyAStr, false));
+		this.selection.add(modifyInquirySelection);
+		
+		// Take
+		takeInquirySelection = new TakeInquirySelection(getSelectionString(takeAStr, false));
+		this.selection.add(takeInquirySelection);
+		
+		// Tabulate
+		tabulateInquirySelection = new TabulateInquirySelection(getSelectionString(tabulateAStr, true));
+		this.selection.add(tabulateInquirySelection);
+		
+		if ( type == Inquiries.Test )
+		{
+			gradeInquirySelection = new GradeInquirySelection(getSelectionString(gradeAStr, true));
+			this.selection.addElement(gradeInquirySelection);
+		}
 	}
 	
 	protected boolean setCurrentInquiry(int inquiryIndex)
@@ -216,9 +284,11 @@ public class InquirySelection extends Selection
 	}
 	
 	
-	private int getFirstAvailableInquiryIndex()
+	public static int getFirstAvailableInquiryIndex(String searchPath)
 	{
-		List<Integer> availableInquiries = getInquiryList(getFullSearchFilePath());
+		List<Integer> availableInquiries = getInquiryList(searchPath);
+		if ( availableInquiries == null )
+			return 0;
 		Collections.sort(availableInquiries);
 		int available = 0;
 		Iterator<Integer> it = availableInquiries.iterator();
@@ -233,7 +303,7 @@ public class InquirySelection extends Selection
 	}
 	
 	// This assumes the following filename format-> /PATH/NAME_*.EXTENSION
-	private Vector<Integer> getInquiryList(String filename)
+	public static Vector<Integer> getInquiryList(String filename)
 	{
 		String filenameRaw;
 		String path;
@@ -253,6 +323,8 @@ public class InquirySelection extends Selection
 			return null;
 		
 		filenameRaw = filenameRaw.substring(0, filenameRaw.lastIndexOf(".")); // Remove Extension
+		if ( filenameRaw.charAt(filenameRaw.length()-1) == '_' )
+			filenameRaw = filenameRaw.substring(0, filenameRaw.length()-1);
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
 		Vector<Integer> foundFiles = new Vector<Integer>();

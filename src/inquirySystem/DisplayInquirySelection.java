@@ -1,6 +1,6 @@
 package inquirySystem;
 
-public class DisplayInquirySelection  extends Selection
+public class DisplayInquirySelection extends Selection
 {
 	protected DisplayInquirySelection(String selectionName) 
 	{

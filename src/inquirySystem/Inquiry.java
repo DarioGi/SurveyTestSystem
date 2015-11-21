@@ -15,9 +15,13 @@ public abstract class Inquiry implements Serializable
 	protected int inquiryIndex;
 	private Vector<Question> questions;
 	transient ChoiceInquirySelection questionAskSelection;
+	transient ChoiceInquirySelection questionModifyAskSelection;
 	transient private Vector<SelectionChoice> questionMenuSelections;
+	transient private Vector<SelectionChoice> questionModifyMenuSelections;
 	transient protected OutputInquiry outInquiry;
 	transient protected OutputMenu outMenu;
+	transient protected Vector<Result> currentInquiryResults;
+	transient protected InquiryResult currentInquiryResult;
 	
 	public Inquiry(String inquiryName, String inquiryPath, int inquiryIndex, String inquiryExtension, boolean isSaved, boolean areQuestionsGradeable)
 	{
@@ -28,6 +32,7 @@ public abstract class Inquiry implements Serializable
 		this.isInquirySaved = isSaved;
 		this.inquiryIndex = inquiryIndex;
 		this.areQuestionsGradeable = areQuestionsGradeable;
+		currentInquiryResult = null;
 		questions = new Vector<Question>();
 	}
 	
@@ -38,7 +43,6 @@ public abstract class Inquiry implements Serializable
 	
 	void createQuestions()
 	{
-		
 		while ( true )
 		{
 			createQuestionMenu();
@@ -80,7 +84,7 @@ public abstract class Inquiry implements Serializable
 			}
 			else if ( count == 4)
 			{
-				q = new QuestionEA("", this.areQuestionsGradeable);
+				q = new QuestionEA("");
 				q.createQuestion();
 				questions.addElement(q);
 			}
@@ -127,6 +131,256 @@ public abstract class Inquiry implements Serializable
 		}
 	}
 	
+	private Vector<InquiryResult> loadAvailableResults()
+	{
+		Vector<InquiryResult> allResults = new Vector<InquiryResult>();
+		Vector<Integer> results = InquirySelection.getInquiryList(getFullSearchResultFilePath());
+		if ( results != null && !results.isEmpty() )
+		{
+			if ( !results.isEmpty() )
+			{
+				Iterator<Integer> it = results.iterator();
+				InquiryResult tempInqRes = null;
+				while ( it.hasNext() )
+				{
+					boolean foundProblem = false;
+					try
+					{
+						tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(it.next()));
+						if ( tempInqRes.getResults().size() == questions.size() )
+						{
+							for ( int i = 0; i < questions.size(); i++)
+							{
+								if ( !questions.get(i).questionAnswer.getUniqueIdentifier().equals(tempInqRes.getResults().get(i).getUniqueIdentifier()))
+									foundProblem = true;
+							}
+						}
+						else
+						{
+							foundProblem = true;
+						}
+						if ( !foundProblem )
+							allResults.addElement(tempInqRes);
+					}
+					catch (Exception e)
+					{
+					}
+				}
+			}
+		}
+		return allResults;
+	}
+	
+	
+	public void tabulateInquiry()
+	{
+		Vector<InquiryResult> results = loadAvailableResults();
+		if ( !results.isEmpty() )
+		{
+			printToMenu(getTabulationOutput(results));
+		}
+		else
+		{
+			printToMenu("No results found!");
+		}
+	}
+	
+	
+	public void gradeInquiry()
+	{
+		Vector<InquiryResult> results = loadAvailableResults();
+		if ( !results.isEmpty() )
+		{
+			createResultLoadMenu();
+			if ( currentInquiryResult != null )
+				printToMenu(gradeQuestions(currentInquiryResult));
+		}
+		else
+		{
+			printToMenu("No results found!");
+		}
+	}
+	
+	private String gradeQuestions(InquiryResult res)
+	{
+		Iterator<Question> itQ = questions.iterator();
+		Iterator<Result> itR = res.getResults().iterator();
+		Question tempQ;
+		Result tempR;
+		double totalWeight = 0, correctWeight = 0;
+		int correctAnswers = 0;
+		int gradeableQuestions = 0;
+		int numEssays = 0;
+		while ( itQ.hasNext() )
+		{
+			tempQ = itQ.next();
+			tempR = itR.next();
+			if ( tempQ.gradeQuestion(tempR) )
+			{
+				correctWeight += tempQ.getAnswerWeight();
+				if  ( tempQ.isGradeable )
+					correctAnswers++;
+			}
+			else
+			{
+				if ( tempQ.getAnswerWeight() == 0 )
+					numEssays++;
+			}
+			if ( tempQ.isGradeable )
+			{
+				gradeableQuestions++;
+				totalWeight += tempQ.getAnswerWeight();	
+			}
+		}
+		if ( gradeableQuestions == 0 || questions.isEmpty() )
+			return String.format("Grade: 100/100. Review %d essay(s).\n", numEssays);
+		else
+		{
+			double base = gradeableQuestions/(double)questions.size();
+			if ( numEssays == 0 )
+				return String.format("Grade: %d/%d, %d/%d correct questions\n",
+						(int)Math.ceil((correctWeight/totalWeight) * base * 100),
+						(int)Math.ceil(base * 100),
+						correctAnswers,
+						gradeableQuestions);
+			else
+				return String.format("Grade: %d/%d, %d/%d correct questions, review %d essay(s).\n",
+						(int)Math.ceil((correctWeight/totalWeight) * base * 100),
+						(int)Math.ceil(base * 100),
+						correctAnswers,
+						gradeableQuestions,
+						numEssays);	
+		}
+	}
+	
+	protected void createResultLoadMenu()
+	{
+		Vector<Integer> results = InquirySelection.getInquiryList(getFullSearchResultFilePath());
+		ChoiceInquirySelection loadResultSelection = new ChoiceInquirySelection(" ");
+		Vector<SelectionChoice> loadResultSelections = new Vector<SelectionChoice>();
+		
+		Iterator<Integer> it = results.iterator();
+		while ( it.hasNext() )
+		{
+			loadResultSelections.addElement(new SelectionChoice());
+			loadResultSelection.addSelection(new ChoiceSelection("Result" + " " + Integer.toString(it.next()), loadResultSelections.lastElement()));
+		}
+		loadResultSelection.select(null);
+		Iterator<SelectionChoice> itSC = loadResultSelections.iterator();
+		int count = 0;
+		while ( itSC.hasNext() )
+		{
+			int choice = itSC.next().getSelectionChoice();
+			if ( choice != -1 )
+			{
+				InquiryResult tempInqRes = null;
+				try
+				{
+					boolean problemFound = false;
+					tempInqRes = (InquiryResult)SerializationUtil.deserialize(getFullResultFilePath(count));
+					if ( tempInqRes.getResults().size() == questions.size() )
+					{
+						for ( int i = 0; i < questions.size(); i++)
+						{
+							if ( !questions.get(i).questionAnswer.getUniqueIdentifier().equals(tempInqRes.getResults().get(i).getUniqueIdentifier()))
+								problemFound = true;
+						}
+					}
+					else
+					{
+						problemFound = true;
+					}
+					if ( !problemFound )
+					{
+						this.currentInquiryResult = tempInqRes;
+						return;
+					}
+					else	
+					{
+						printToMenu("Incompatible result! Try again...\n");
+					}
+				}
+				catch (Exception e)
+				{
+				}
+			}
+			count++;
+		}
+	}
+	
+	private String getTabulationOutput(Vector<InquiryResult> results)
+	{
+		String output = "";
+		for ( int q = 0; q < questions.size(); q++ )
+		{
+			Vector<Result> tempVect = new Vector<Result>();
+			Iterator<InquiryResult> rIt = results.iterator();
+			while ( rIt.hasNext() )
+			{
+				tempVect.addElement(rIt.next().getResults().get(q));
+			}
+			output += questions.elementAt(q).tabulateQuestion(tempVect);
+		}
+		return output;
+	}
+	
+	
+	public void takeInquiry()
+	{
+		if (questions.isEmpty() )
+		{
+			printToInquiry("There are no questions!");
+			return;
+		}
+		currentInquiryResults = new Vector<Result>();
+		Iterator<Question> it = questions.iterator();
+		while ( it.hasNext() )
+		{
+			currentInquiryResults.addElement(it.next().askQuestion());
+		}
+		currentInquiryResult = new InquiryResult(this.inquiryPath + InquiryResult.DEFAULT_RESULT_PATH,
+				this.inquiryName + "_" + String.valueOf(this.inquiryIndex),
+				InquirySelection.getFirstAvailableInquiryIndex(getFullSearchResultFilePath()),
+				InquiryResult.DEFAULT_RESULT_EXTENSION);
+		if ( currentInquiryResults != null)
+			currentInquiryResult.setResults(currentInquiryResults);
+		currentInquiryResult.saveResult();
+	}
+	
+	public void modifyInquiry()
+	{
+		while (true)
+		{
+			createModifyInquiry();
+			int choice = -1;
+			questionModifyAskSelection.select(null);
+			Iterator<SelectionChoice> itSC = questionModifyMenuSelections.iterator();	
+			int count = 1;
+			while ( itSC.hasNext() )
+			{
+				choice = itSC.next().getSelectionChoice() ;
+				if ( choice != -1 )
+					break;
+				else
+					count++;
+			}
+			if ( choice <= 0 )
+				break;
+			questions.elementAt(count-1).modifyQuestion();
+		}
+	}
+	
+	
+	public void createModifyInquiry()
+	{
+		questionModifyMenuSelections = new Vector<SelectionChoice>();
+		questionModifyAskSelection = new ChoiceInquirySelection("None");
+		Iterator<Question> it = questions.iterator();
+		while ( it.hasNext() )
+		{
+			addQuestionToMenu(String.format("%s", it.next().questionType), questionModifyMenuSelections, questionModifyAskSelection);
+		}
+	}
 	
 	public static String getFilePath(String path, String filename, int index, String extension)
 	{
@@ -139,20 +393,20 @@ public abstract class Inquiry implements Serializable
 		questionMenuSelections = new Vector<SelectionChoice>();
 		questionAskSelection = new ChoiceInquirySelection("None");
 		
-		addQuestionToMenu("Add a new T/F question");
-		addQuestionToMenu("Add a new multiple choice question");
-		addQuestionToMenu("Add a new short answer question");
-		addQuestionToMenu("Add a new essay question");
-		addQuestionToMenu("Add a new ranking question");
-		addQuestionToMenu("Add a new matching question");
+		addQuestionToMenu("Add a new T/F question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new multiple choice question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new short answer question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new essay question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new ranking question", questionMenuSelections, questionAskSelection);
+		addQuestionToMenu("Add a new matching question", questionMenuSelections, questionAskSelection);
 	}
 	
 	
-	private void addQuestionToMenu(String name)
+	private void addQuestionToMenu(String name, Vector<SelectionChoice> selVector, ChoiceInquirySelection choiceInquirySel)
 	{
 		SelectionChoice tempSC = new SelectionChoice();
-		questionMenuSelections.add(tempSC);
-		questionAskSelection.addSelection(new ChoiceSelection(name, tempSC));
+		selVector.add(tempSC);
+		choiceInquirySel.addSelection(new ChoiceSelection(name, tempSC));
 	}
 	
 	protected void displayInquiry()
@@ -180,6 +434,16 @@ public abstract class Inquiry implements Serializable
 	public int getInquiryIndex()
 	{
 		return this.inquiryIndex;
+	}
+	
+	public String getFullSearchResultFilePath()
+	{
+		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + "/" + this.inquiryName + "_" + this.inquiryIndex + "_" + InquiryResult.DEFAULT_RESULT_EXTENSION;
+	}
+	
+	public String getFullResultFilePath(int index)
+	{
+		return this.inquiryPath + "/" + InquiryResult.DEFAULT_RESULT_PATH + "/" + this.inquiryName + "_" + this.inquiryIndex + "_" + String.valueOf(index) + InquiryResult.DEFAULT_RESULT_EXTENSION;
 	}
 }
 	

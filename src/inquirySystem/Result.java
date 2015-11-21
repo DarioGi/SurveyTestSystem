@@ -7,6 +7,7 @@ public class Result implements Resultable, Serializable
 {
 	ArrayList<ArrayList<String>> result;
 	private int numResults = 0;
+	private String uniqueIdentifier = "";
 	public Result()
 	{
 		result = new ArrayList<ArrayList<String>>();
@@ -64,10 +65,11 @@ public class Result implements Resultable, Serializable
 	}
 
 	@Override
-	public void removeAllResults(int index) 
+	public void removeAllResults() 
 	{
-		result.get(0).clear();
-		result.get(1).clear();
+		result.clear();
+		result.add(new ArrayList<String>());
+		result.add(new ArrayList<String>());
 		numResults = 0;
 	}
 
@@ -76,5 +78,27 @@ public class Result implements Resultable, Serializable
 	{
 		return numResults;
 	}
+	
+	@Override
+	public boolean changeResult(int resIndex, String r1, String r2)
+	{
+		if ( resIndex >= numResults )
+			return false;
+		
+		result.get(0).set(resIndex, r1);
+		result.get(1).set(resIndex, r2);
+		return true;
+	}
 
+	@Override
+	public String getUniqueIdentifier() 
+	{
+		return uniqueIdentifier;
+	}
+
+	@Override
+	public void setUniqueIdentifier(String identifier) 
+	{
+		uniqueIdentifier = identifier;
+	}
 }
