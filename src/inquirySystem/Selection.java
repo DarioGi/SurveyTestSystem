@@ -7,7 +7,7 @@ public abstract class Selection implements Selectable
 	protected String selectionName;
 	protected String inputQuestion = "Enter a selection: ";
 	protected String invalidInputMsg = "Invalid input, try again...";
-	protected OutputMenu out;
+	protected Outputable out;
 	protected Input input;
 	protected String exitString = "Go Back";
 	

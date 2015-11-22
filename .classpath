@@ -2,5 +2,15 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/cmu_time_awb.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/cmu_us_kal.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/cmudict04.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/cmulex.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/cmutimelex.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/en_us.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/freetts.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/freetts-jsapi10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/jsapi.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Darius/workspace/SurveyTestSystem/src/freeTTS/mbrola.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
