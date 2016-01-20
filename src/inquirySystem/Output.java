@@ -3,7 +3,8 @@ package inquirySystem;
 public abstract class Output implements Outputable
 {
 	public Output()
-	{	
+	{
+		
 	}
 	
 	public void output(String arg)
