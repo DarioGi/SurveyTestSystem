@@ -22,7 +22,7 @@ public class OutputInquiry extends Output
 	@Override
 	public void output(String arg) 
 	{
-		 voice.speak(arg);
 		 System.out.printf(arg);
+		 voice.speak(arg);
 	}
 }
